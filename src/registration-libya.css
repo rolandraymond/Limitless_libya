@@ -1,0 +1,87 @@
+/* Scoped to the Libya registration component; admin/pass pages are unaffected. */
+.ly-site .ly-registration {
+  --registration-accent: #bce6dc;
+  background: #0b1826;
+  color: #f4f7fa;
+  padding: clamp(64px, 8vw, 112px) 0;
+  scroll-margin-top: 100px;
+  font-family: inherit;
+}
+.ly-site .ly-registration .rsvp-grid {
+  width: min(1180px, calc(100% - 40px)); margin: auto;
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(32px, 6vw, 88px); align-items: start;
+}
+.ly-site .ly-registration .rsvp-copy { padding-top: 24px; }
+.ly-site .ly-registration .section-kicker,
+.ly-site .ly-registration .form-head > p,
+.ly-site .ly-registration .success-kicker {
+  color: var(--registration-accent); font-size: 11px; letter-spacing: .2em;
+  text-transform: uppercase; font-weight: 600; margin: 0 0 18px;
+}
+.ly-site .ly-registration h2 {
+  color: #fff; font-family: inherit; font-weight: 500;
+  font-size: clamp(32px, 4vw, 54px); line-height: 1.1; letter-spacing: -.035em;
+  margin: 0 0 24px;
+}
+.ly-site .ly-registration .rsvp-copy > p { color: #aab8c7; line-height: 1.8; max-width: 420px; }
+.ly-site .ly-registration .mini-meta { display: flex; gap: 12px; align-items: center; color: #bfccd9; font-size: 12px; line-height: 1.7; margin-top: 20px; }
+.ly-site .ly-registration .mini-meta svg { width: 19px; flex-shrink: 0; color: var(--registration-accent); }
+.ly-site .ly-registration .rsvp-card {
+  min-width: 0; background: #112235; color: #f4f7fa;
+  border: 1px solid #2b4055; border-radius: 24px;
+  padding: clamp(24px, 4vw, 44px); box-shadow: 0 24px 60px #0002;
+}
+.ly-site .ly-registration .form-head h3,
+.ly-site .ly-registration .success-state h3 { color: #fff; font: inherit; font-size: clamp(24px, 3vw, 32px); line-height: 1.2; margin: 0 0 18px; letter-spacing: -.025em; }
+.ly-site .ly-registration .rsvp-card [class*="text-neutral-"] { color: #b8c6d5; }
+.ly-site .ly-registration .rsvp-card label > span,
+.ly-site .ly-registration .rsvp-card label[for] { color: #e0e8f0; }
+.ly-site .ly-registration input:not([type="checkbox"]),
+.ly-site .ly-registration select {
+  width: 100%; min-height: 52px; border: 1px solid #3b5167;
+  background: #0b1929; color: #f5f8fb; border-radius: 12px;
+  padding: 13px 16px; font: inherit; font-size: 15px;
+  box-shadow: none; color-scheme: dark;
+}
+.ly-site .ly-registration input::placeholder { color: #8597ab; }
+.ly-site .ly-registration input[readonly] { background: #1b2c3e; color: #aebfd0; }
+.ly-site .ly-registration input:focus-visible,
+.ly-site .ly-registration select:focus-visible,
+.ly-site .ly-registration button:focus-visible {
+  outline: 2px solid var(--registration-accent); outline-offset: 3px;
+}
+.ly-site .ly-registration input[type="checkbox"] { accent-color: #bce6dc; flex-shrink: 0; width: 18px; height: 18px; }
+.ly-site .ly-registration label[class*="bg-amber-"],
+.ly-site .ly-registration div[class*="bg-neutral-50"] {
+  background: #192e43; border-color: #3b5167; color: #c6d4e1;
+}
+.ly-site .ly-registration .button {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 52px; border-radius: 12px;
+  padding: 14px 20px; font: inherit; font-size: 12px;
+  font-weight: 600; letter-spacing: .08em; cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.ly-site .ly-registration .button-primary { background: #bce6dc; border: 1px solid #bce6dc; color: #0b1826; box-shadow: none; }
+.ly-site .ly-registration .button-primary:hover:not(:disabled) { background: #d6f4ed; transform: translateY(-1px); }
+.ly-site .ly-registration .button-ghost { background: transparent; border: 1px solid #40576d; color: #dae7f2; }
+.ly-site .ly-registration .button:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.ly-site .ly-registration [class*="text-red-"] { color: #ffabb7; }
+.ly-site .ly-registration [class*="bg-red-"] { background: #381c2a; border-color: #925064; }
+.ly-site .ly-registration input[class*="border-red-"] { border-color: #f58ea1; }
+.ly-site .ly-registration .success-state { text-align: center; }
+.ly-site .ly-registration .success-state > p { color: #b8c6d5; line-height: 1.7; }
+.ly-site .ly-registration .success-icon { width: 56px; height: 56px; display: grid; place-items: center; margin: 0 auto 24px; background: #bce6dc18; border: 1px solid #bce6dc55; border-radius: 50%; color: #bce6dc; }
+.ly-site .ly-registration .ticket { display: grid; gap: 10px; background: #0b1929; border: 1px solid #344b61; border-radius: 16px; padding: 24px; margin-top: 24px; color: #f4f7fa; }
+.ly-site .ly-registration .ticket span,
+.ly-site .ly-registration .ticket small { color: #a9bccf; letter-spacing: .12em; font-size: 11px; }
+/* Keep a pure white quiet zone around every QR for reliable scanning. */
+.ly-site .ly-registration div.bg-white:has(> svg) { background: #fff; padding: 16px; border-radius: 16px; }
+@media (max-width: 760px) {
+  .ly-site .ly-registration .rsvp-grid { grid-template-columns: 1fr; width: min(100% - 32px, 580px); gap: 32px; }
+  .ly-site .ly-registration .rsvp-copy { padding-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ly-site .ly-registration .button { transition: none; }
+}

@@ -4,15 +4,6 @@ export interface EmailEnv {
   PUBLIC_APP_URL: string
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-}
-
 export async function sendConfirmationEmail(
   env: EmailEnv,
   guest: {
@@ -27,6 +18,25 @@ export async function sendConfirmationEmail(
       guest.qrToken
     )}`
 
+  const text = `YOU'RE IN
+
+Thank you, ${guest.fullName}.
+
+Your attendance at شمسك جواك has been confirmed.
+
+02 OCT 2026
+
+THE NILE RITZ-CARLTON
+
+CAIRO
+
+INVITATION ID
+
+${guest.invitationCode}
+
+VIEW MY EVENT PASS
+${eventPassUrl}`
+
   const response = await fetch(
     'https://api.resend.com/emails',
     {
@@ -39,57 +49,7 @@ export async function sendConfirmationEmail(
         from: env.EMAIL_FROM,
         to: [guest.email],
         subject: 'Your invitation to شمسك جواك',
-        html: `
-          <html>
-            <body style="font-family:Arial,sans-serif;background:#f5efe5;padding:30px;">
-              <div style="max-width:600px;margin:auto;background:#fff;padding:40px;border-radius:20px;text-align:center;">
-
-                <p style="color:#e86616;letter-spacing:3px;font-size:12px;font-weight:700;">
-                  YOU'RE IN
-                </p>
-
-                <h1>
-                  Thank you, ${escapeHtml(guest.fullName)}.
-                </h1>
-
-                <p>
-                  Your attendance at <strong>شمسك جواك</strong> has been confirmed.
-                </p>
-
-                <div style="margin:30px 0;padding:24px;background:#fff6e5;border-radius:18px;">
-                  <div>02 OCT 2026</div>
-                  <h2>THE NILE RITZ-CARLTON</h2>
-                  <div>CAIRO</div>
-                </div>
-
-                <p style="font-size:12px;color:#777;">
-                  INVITATION ID
-                </p>
-
-                <h2>
-                  ${escapeHtml(guest.invitationCode)}
-                </h2>
-
-                <a
-                  href="${eventPassUrl}"
-                  style="
-                    display:inline-block;
-                    margin-top:20px;
-                    background:#171512;
-                    color:#fff;
-                    text-decoration:none;
-                    padding:15px 28px;
-                    border-radius:12px;
-                    font-weight:700;
-                  "
-                >
-                  VIEW MY EVENT PASS
-                </a>
-
-              </div>
-            </body>
-          </html>
-        `,
+        text,
       }),
     }
   )
@@ -105,6 +65,10 @@ export async function sendConfirmationEmail(
 
     return false
   }
+
+  const result = await response.json()
+
+  console.log('RESEND SUCCESS:', result)
 
   return true
 }

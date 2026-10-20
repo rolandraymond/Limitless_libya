@@ -311,6 +311,16 @@ export async function autoAssignTables(
   }[] = []
 
 
+  const lastTable = await env.DB.prepare(`
+  SELECT COALESCE(MAX(table_number), 0) AS last_number
+  FROM event_tables
+`).first<{ last_number: number }>()
+
+let nextTableNumber =
+  Number(lastTable?.last_number ?? 0)
+
+const newTableNumbers: number[] = []
+
   // =====================================================
   // ASSIGN GROUPS
   // =====================================================
@@ -319,7 +329,7 @@ export async function autoAssignTables(
     const groupSize =
       group.guests.length
 
-    if (groupSize > 7) {
+    if (groupSize > 8) {
       return {
         success: false,
         code: 'GROUP_TOO_LARGE',
@@ -386,23 +396,30 @@ export async function autoAssignTables(
         })
 
 
-    const table =
-      candidates[0]
+let table = candidates[0]
 
-    if (!table) {
-      return {
-        success: false,
-        code:
-          group.isVip
-            ? 'NO_VIP_TABLE_SPACE'
-            : 'NO_REGULAR_TABLE_SPACE',
-
-        error:
-          group.isVip
-            ? `No VIP table has ${groupSize} seats available for ${group.key}.`
-            : `No regular table has ${groupSize} seats available for ${group.key}.`,
-      }
+if (!table) {
+  if (group.isVip) {
+    return {
+      success: false,
+      code: 'NO_VIP_TABLE_SPACE',
+      error:
+        `No VIP table has ${groupSize} seats available for ${group.key}.`,
     }
+  }
+
+  const tableNumber = ++nextTableNumber
+
+  table = {
+    tableNumber,
+    capacity: 8,
+    type: 'regular',
+    occupiedSeats: new Set<number>(),
+  }
+
+  tableState.set(tableNumber, table)
+  newTableNumbers.push(tableNumber)
+}
 
 
     // ---------------------------------------------
@@ -469,7 +486,17 @@ export async function autoAssignTables(
         rsvp_status = 'confirmed'
         AND table_locked = 0
     `),
-
+      ...newTableNumbers.map(tableNumber =>
+        env.DB.prepare(`
+          INSERT INTO event_tables (
+            table_number,
+            capacity,
+            table_type,
+            is_active
+          )
+          VALUES (?, 8, 'regular', 1)
+        `).bind(tableNumber)
+      ),
     ...assignments.map(
       assignment =>
 
@@ -494,16 +521,13 @@ export async function autoAssignTables(
   await env.DB.batch(statements)
 
 
-  return {
-    success: true,
-    assigned:
-      assignments.length,
-
-    groups:
-      sortedGroups.length,
-  }
+return {
+  success: true,
+  createdTables: newTableNumbers.length,
+  assigned: assignments.length,
+  groups: sortedGroups.length,
 }
-
+}
 
 type AutoSeatEnv = {
   DB: D1Database
@@ -625,7 +649,7 @@ export async function assignGuestToTable(
 
       SELECT seat_number + 1
       FROM seat_numbers
-      WHERE seat_number < 7
+      WHERE seat_number < 8
     ),
 
     chosen_seat AS (

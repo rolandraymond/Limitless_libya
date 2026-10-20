@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS event_tables (
 
   table_number INTEGER NOT NULL UNIQUE,
 
-  capacity INTEGER NOT NULL DEFAULT 7,
+  capacity INTEGER NOT NULL DEFAULT 8,
 
   table_type TEXT NOT NULL DEFAULT 'regular'
     CHECK (table_type IN ('regular', 'vip')),
@@ -41,7 +41,7 @@ INSERT OR IGNORE INTO event_tables (
 )
 SELECT
   n,
-  7,
+  8,
   'regular',
   1
 FROM numbers;

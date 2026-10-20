@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react'
+import * as XLSX from 'xlsx'
 import {
   CheckCircle2,
   Clock3,
@@ -12,6 +13,9 @@ import {
   X,
 Armchair,
 } from 'lucide-react'
+
+
+import AdminQrScanner from './AdminQrScanner'
 
 type TableGuest = {
   id: number
@@ -54,10 +58,14 @@ type DashboardStats = {
 type AdminGuest = {
   id: number
   invitationCode: string | null
+  firstName: string | null
+  lastName: string | null
   fullName: string
   phone: string
   email: string | null
   specialty: string | null
+  governorate: string | null
+  invitedBy: string | null
   rsvpStatus: string
   isVip: boolean
   vipLevel: string | null
@@ -79,10 +87,15 @@ export default function AdminPage() {
 
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [guests, setGuests] = useState<AdminGuest[]>([])
+  const [selectedGuestInfo, setSelectedGuestInfo] =
+  useState<AdminGuest | null>(null)
+  const [activeTab, setActiveTab] =
+  useState<'guests' | 'tables'>('guests')
   const [dashboardLoading, setDashboardLoading] = useState(false)
-
+  const [scannerOpen, setScannerOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [specialtyFilter, setSpecialtyFilter] = useState('')
+  const [sortBy, setSortBy] = useState('default')
   const [checkingInId, setCheckingInId] = useState<number | null>(null)
   const [updatingSeatId, setUpdatingSeatId] =
   useState<number | null>(null)
@@ -118,6 +131,8 @@ const [autoAssigning, setAutoAssigning] =
   useState(false)
 const [selectedTable, setSelectedTable] =
   useState<TableDetails | null>(null)
+
+const [exporting, setExporting] = useState(false)
 
 const [tableDetailsLoading, setTableDetailsLoading] =
   useState(false)
@@ -188,15 +203,17 @@ const [tableDetailsLoading, setTableDetailsLoading] =
     }
   }
 
-  const loadDashboard = async (
-    query = '',
-    selectedSpecialty = specialtyFilter
-  ) => {
+const loadDashboard = async (
+  query = '',
+  selectedSpecialty = specialtyFilter,
+  selectedSort = sortBy
+) => {
     setDashboardLoading(true)
     setActionError('')
 
     try {
       const params = new URLSearchParams()
+      params.set('sort', selectedSort)
 
       if (query.trim()) {
         params.set('q', query.trim())
@@ -569,6 +586,145 @@ await Promise.all([
       </main>
     )
   }
+  const exportGuestsToExcel = async () => {
+  setExporting(true)
+  setActionError('')
+
+  try {
+    const response = await fetch(
+      '/api/admin/dashboard',
+      {
+        credentials: 'include',
+      }
+    )
+
+    if (response.status === 401) {
+      setAuthenticated(false)
+      return
+    }
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      setActionError(
+        data.error ||
+          'Unable to export guests.'
+      )
+      return
+    }
+
+    const rows = data.guests.map(
+      (guest: AdminGuest) => ({
+        ID: guest.id,
+
+        'Invitation ID':
+          guest.invitationCode || '',
+
+        'First Name':
+          guest.firstName || '',
+
+        'Last Name':
+          guest.lastName || '',
+
+        'Full Name':
+          [guest.firstName, guest.lastName]
+            .filter(Boolean)
+            .join(' ') || guest.fullName || '',
+
+        Phone:
+          guest.phone || '',
+
+        Email:
+          guest.email || '',
+
+        Specialty:
+          guest.specialty || '',
+
+        Governorate:
+          guest.governorate || '',
+
+        'Invited By':
+          guest.invitedBy || '',
+
+        RSVP:
+          guest.rsvpStatus || '',
+
+        Type:
+          guest.isVip
+            ? 'VIP'
+            : 'Guest',
+
+        Table:
+          guest.tableNumber ?? '',
+
+        Seat:
+          guest.seatNumber ?? '',
+
+        'Checked In':
+          guest.checkedIn
+            ? 'Yes'
+            : 'No',
+
+        'Checked In At':
+          guest.checkedInAt || '',
+
+        'Registration Date':
+          guest.createdAt || '',
+      })
+    )
+
+    const worksheet =
+      XLSX.utils.json_to_sheet(rows)
+
+    const workbook =
+      XLSX.utils.book_new()
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      'Guests'
+    )
+
+    worksheet['!cols'] = [
+      { wch: 8 },
+      { wch: 16 },
+      { wch: 18 },
+      { wch: 18 },
+      { wch: 28 },
+      { wch: 18 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 18 },
+      { wch: 20 },
+      { wch: 14 },
+      { wch: 12 },
+      { wch: 10 },
+      { wch: 8 },
+      { wch: 14 },
+      { wch: 24 },
+      { wch: 24 },
+    ]
+
+    const today =
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+
+    XLSX.writeFile(
+      workbook,
+      `shamsak-gowak-guests-${today}.xlsx`
+    )
+
+  } catch (error) {
+    console.error(error)
+
+    setActionError(
+      'Unable to export guests.'
+    )
+  } finally {
+    setExporting(false)
+  }
+}
 
   if (!authenticated) {
     return (
@@ -844,6 +1000,18 @@ await Promise.all([
   return (
     <main className="min-h-screen bg-[#f5f5f3]">
 
+      {scannerOpen && authenticated && (
+        <AdminQrScanner
+          onClose={() => setScannerOpen(false)}
+          onCompleted={async () => {
+            await Promise.all([
+              loadDashboard(search, specialtyFilter),
+              loadTables(),
+            ])
+          }}
+        />
+      )}
+
       <header className="border-b border-neutral-200 bg-white">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between px-5 py-5 lg:px-8">
 
@@ -856,7 +1024,34 @@ await Promise.all([
               Event Dashboard
             </h1>
           </div>
+          <button
+              type="button"
+              onClick={() => setScannerOpen(true)}
+              className="rounded-xl bg-orange-500 px-5 py-3 font-semibold text-white"
+            >
+              SCAN QR
+            </button>
 
+          <button
+            type="button"
+            onClick={exportGuestsToExcel}
+            disabled={exporting}
+            className="
+              rounded-xl
+              bg-green-600
+              px-5 py-3
+              text-sm
+              font-semibold
+              text-white
+              transition
+              hover:bg-green-700
+              disabled:opacity-50
+            "
+          >
+            {exporting
+              ? 'EXPORTING...'
+              : 'EXPORT EXCEL'}
+</button>
           <button
             onClick={logout}
             className="flex items-center gap-2 rounded-xl border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
@@ -869,6 +1064,23 @@ await Promise.all([
       </header>
 
       <div className="mx-auto max-w-[1500px] px-5 py-8 lg:px-8">
+        <nav className="mb-6 flex gap-2" aria-label="Dashboard sections">
+  {(['guests', 'tables'] as const).map((tab) => (
+    <button
+      key={tab}
+      type="button"
+      aria-pressed={activeTab === tab}
+      onClick={() => setActiveTab(tab)}
+      className={`rounded-xl px-6 py-3 text-sm font-semibold ${
+        activeTab === tab
+          ? 'bg-neutral-950 text-white'
+          : 'bg-white text-neutral-600 hover:bg-neutral-100'
+      }`}
+    >
+      {tab === 'guests' ? 'Guests' : 'Tables'}
+    </button>
+  ))}
+</nav>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
 
@@ -904,8 +1116,11 @@ await Promise.all([
 
         </div>
 
-        <div className="mt-8 rounded-3xl border border-neutral-200 bg-white shadow-sm">
-
+        <div
+          className={`mt-8 rounded-3xl border border-neutral-200 bg-white shadow-sm ${
+            activeTab === 'guests' ? '' : 'hidden'
+          }`}
+        >
           <div className="border-b border-neutral-200 p-5 lg:p-6">
 
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -953,11 +1168,28 @@ await Promise.all([
                   <option value="">All specialties</option>
                   <option value="Health Advocates">Health Advocates</option>
                   <option value="Nutritionist">Nutritionist</option>
-                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Orthopedic">Orthopedic</option>
                   <option value="Internist">Internist</option>                  
                   <option value="Gynecologist">Gynecologist</option>
                   <option value="Dermatologist">Dermatologist</option>
                   <option value="Pharmacist">Pharmacist</option>
+                  <option value="Staff">Staff</option>
+                </select>
+
+                <select
+                  aria-label="Sort guests"
+                  value={sortBy}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setSortBy(value)
+                    void loadDashboard(search, specialtyFilter, value)
+                  }}
+                  className="rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm outline-none focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10"
+                >
+                  <option value="default">Sort: Default</option>
+                  <option value="check-in">Sort: Check-in</option>
+                  <option value="specialty">Sort: Specialty</option>
+                  <option value="vip">Sort: VIP</option>
                 </select>
 
                 <button
@@ -993,27 +1225,25 @@ await Promise.all([
 
               <table className="w-full table-fixed">
 
-                <colgroup>
-                  <col className="w-[9%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[15%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[6%]" />
-                  <col className="w-[8%]" />
-                  <col className="w-[11%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[23%]" />
-                </colgroup>
+<colgroup>
+  <col className="w-[11%]" />
+  <col className="w-[9%]" />
+  <col className="w-[12%]" />
+  <col className="w-[11%]" />
+  <col className="w-[7%]" />
+  <col className="w-[13%]" />
+  <col className="w-[12%]" />
+  <col className="w-[25%]" />
+</colgroup>
 
               <thead className="bg-neutral-50 text-left text-xs uppercase tracking-wider text-neutral-500">
 
             <tr>
             <th className="px-3 py-4">Guest</th>
             <th className="px-3 py-4">Invitation</th>
-            <th className="px-3 py-4">Contact</th>
+            <th className="px-3 py-4">Invited By</th>
             <th className="px-3 py-4">Specialty</th>
             <th className="px-3 py-4">Type</th>
-            <th className="px-3 py-4">RSVP</th>
             <th className="px-3 py-4">Table / Seat</th>
             <th className="px-3 py-4">Check-in</th>
             <th className="px-2 py-4">Action</th>
@@ -1027,7 +1257,7 @@ await Promise.all([
 
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={8}
                       className="px-6 py-16 text-center"
                     >
                       <LoaderCircle
@@ -1045,7 +1275,7 @@ await Promise.all([
 
                   <tr>
                     <td
-                      colSpan={9}
+                      colSpan={8}
                       className="px-6 py-16 text-center text-neutral-500"
                     >
                       No guests found.
@@ -1063,7 +1293,9 @@ guests.map((guest) => (
     {/* GUEST */}
     <td className="px-6 py-4">
       <strong className="block text-sm text-neutral-900">
-        {guest.fullName}
+        {[guest.firstName, guest.lastName]
+          .filter(Boolean)
+          .join(' ') || guest.fullName}
       </strong>
 
       <span className="mt-1 block text-xs text-neutral-400">
@@ -1078,18 +1310,23 @@ guests.map((guest) => (
     </td>
 
 
-    {/* CONTACT */}
-    <td className="px-6 py-4">
-
-      <span className="block text-sm text-neutral-700">
-        {guest.phone}
-      </span>
-
-      <span className="mt-1 block text-xs text-neutral-400">
-        {guest.email || '—'}
-      </span>
-
-    </td>
+{/* INVITED BY */}
+<td className="px-6 py-4">
+  <span
+    className="
+      inline-flex
+      whitespace-nowrap
+      rounded-full
+      bg-blue-50
+      px-3 py-1
+      text-xs
+      font-semibold
+      text-blue-700
+    "
+  >
+    {guest.invitedBy || '—'}
+  </span>
+</td>
 
 
     {/* SPECIALTY */}
@@ -1114,14 +1351,7 @@ guests.map((guest) => (
     </td>
 
 
-    {/* RSVP */}
-    <td className="px-6 py-4">
 
-      <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold uppercase text-green-700">
-        {guest.rsvpStatus}
-      </span>
-
-    </td>
 
 
 {/* TABLE / SEAT */}
@@ -1202,6 +1432,26 @@ guests.map((guest) => (
   {/* ACTION */}
 <td className="min-w-[280px] px-4 py-4">
   <div className="flex flex-wrap items-center gap-2">
+
+    <button
+  type="button"
+  onClick={() => setSelectedGuestInfo(guest)}
+  className="
+    min-w-[70px]
+    whitespace-nowrap
+    rounded-xl
+    bg-blue-50
+    px-3 py-2
+    text-xs
+    font-semibold
+    text-blue-600
+    transition
+    hover:bg-blue-600
+    hover:text-white
+  "
+>
+  INFO
+</button>
 
     {/* VIP */}
     <button
@@ -1326,8 +1576,11 @@ guests.map((guest) => (
     TABLES
 ===================================================== */}
 
-<div className="mt-8 rounded-3xl border border-neutral-200 bg-white shadow-sm">
-
+<div
+  className={`mt-8 rounded-3xl border border-neutral-200 bg-white shadow-sm ${
+    activeTab === 'tables' ? '' : 'hidden'
+  }`}
+>
   <div className="flex flex-col gap-4 border-b border-neutral-200 p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6">
 
     <div>
@@ -1340,7 +1593,8 @@ guests.map((guest) => (
       </h2>
 
       <p className="mt-1 text-sm text-neutral-500">
-        95 tables • 7 seats per table
+        {tables.length} tables •{' '}
+        {tables.reduce((total, table) => total + table.capacity, 0)} seats
       </p>
     </div>
 
@@ -1737,7 +1991,226 @@ guests.map((guest) => (
 )}
 
       </div>
+    {selectedGuestInfo && (
+  <div
+    className="
+      fixed inset-0 z-[70]
+      flex items-center justify-center
+      bg-black/50
+      px-4 py-8
+      backdrop-blur-sm
+    "
+    onClick={() => setSelectedGuestInfo(null)}
+  >
+    <div
+      onClick={(e) => e.stopPropagation()}
+      className="
+        max-h-[90vh]
+        w-full
+        max-w-lg
+        overflow-y-auto
+        rounded-3xl
+        bg-white
+        shadow-2xl
+      "
+    >
+      {/* HEADER */}
+      <div className="
+        flex items-start justify-between
+        border-b border-neutral-200
+        p-6
+      ">
+        <div>
+          <p className="
+            text-xs font-semibold
+            tracking-[0.2em]
+            text-orange-500
+          ">
+            GUEST INFORMATION
+          </p>
 
+          <h2 className="
+            mt-2 text-2xl
+            font-semibold
+            text-neutral-900
+          ">
+            {[
+            selectedGuestInfo.firstName,
+            selectedGuestInfo.lastName,
+          ]
+            .filter(Boolean)
+            .join(' ') || selectedGuestInfo.fullName}
+          </h2>
+
+          <p className="mt-1 text-sm text-neutral-500">
+            Guest ID #{selectedGuestInfo.id}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSelectedGuestInfo(null)}
+          className="
+            rounded-xl p-2
+            text-neutral-400
+            transition
+            hover:bg-neutral-100
+            hover:text-neutral-900
+          "
+        >
+          <X size={21} />
+        </button>
+      </div>
+
+      {/* DETAILS */}
+      <div className="p-6">
+
+        <div className="
+          grid grid-cols-1
+          gap-4
+          sm:grid-cols-2
+        ">
+
+          <GuestInfoItem
+            label="Invitation ID"
+            value={
+              selectedGuestInfo.invitationCode || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Invited By"
+            value={
+              selectedGuestInfo.invitedBy || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Specialty"
+            value={
+              selectedGuestInfo.specialty || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="RSVP"
+            value={
+              selectedGuestInfo.rsvpStatus === 'confirmed'
+                ? 'Confirmed'
+                : selectedGuestInfo.rsvpStatus === 'pending'
+                  ? 'Pending'
+                  : selectedGuestInfo.rsvpStatus || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Governorate"
+            value={
+              selectedGuestInfo.governorate || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Mobile"
+            value={
+              selectedGuestInfo.phone || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Email"
+            value={
+              selectedGuestInfo.email || '—'
+            }
+          />
+
+          <GuestInfoItem
+            label="Guest Type"
+            value={
+              selectedGuestInfo.isVip
+                ? 'VIP'
+                : 'Regular Guest'
+            }
+          />
+
+
+
+          <GuestInfoItem
+            label="Table"
+            value={
+              selectedGuestInfo.tableNumber !== null
+                ? `Table ${String(
+                    selectedGuestInfo.tableNumber
+                  ).padStart(2, '0')}`
+                : 'Not assigned'
+            }
+          />
+
+          <GuestInfoItem
+            label="Seat"
+            value={
+              selectedGuestInfo.seatNumber !== null
+                ? `Seat ${selectedGuestInfo.seatNumber}`
+                : 'Not assigned'
+            }
+          />
+
+          <GuestInfoItem
+            label="Check-in"
+            value={
+              selectedGuestInfo.checkedIn
+                ? 'Checked In'
+                : 'Not Checked In'
+            }
+          />
+
+          <GuestInfoItem
+            label="Registration Date"
+            value={
+              selectedGuestInfo.createdAt
+                ? new Intl.DateTimeFormat(
+                    'en-EG',
+                    {
+                      timeZone: 'Africa/Cairo',
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }
+                  ).format(
+                    new Date(
+                      selectedGuestInfo.createdAt
+                    )
+                  )
+                : '—'
+            }
+          />
+
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSelectedGuestInfo(null)}
+          className="
+            mt-6 w-full
+            rounded-xl
+            bg-neutral-950
+            px-4 py-3
+            text-sm
+            font-semibold
+            text-white
+            transition
+            hover:bg-orange-500
+          "
+        >
+          CLOSE
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
 
       {editingSeatGuest && (
   <div
@@ -1821,15 +2294,21 @@ guests.map((guest) => (
           >
             <option value="">Select table</option>
 
-            {Array.from(
-              { length: 95 },
-              (_, index) => index + 1
-            ).map((tableNumber) => (
+          {tables
+            .filter(
+              (table) =>
+                table.isActive &&
+                table.tableNumber >= 1
+            )
+            .slice()
+            .sort((a, b) => a.tableNumber - b.tableNumber)
+            .map((table) => (
               <option
-                key={tableNumber}
-                value={tableNumber}
+                key={table.tableNumber}
+                value={table.tableNumber}
               >
-                Table {String(tableNumber).padStart(2, '0')}
+                Table {String(table.tableNumber).padStart(2, '0')}
+                {table.tableType === 'vip' ? ' — VIP' : ''}
               </option>
             ))}
           </select>
@@ -1860,7 +2339,7 @@ guests.map((guest) => (
             <option value="">Select seat</option>
 
             {Array.from(
-              { length: 7 },
+              { length: 8 },
               (_, index) => index + 1
             ).map((seatNumber) => (
               <option
@@ -1930,7 +2409,43 @@ guests.map((guest) => (
     </main>
   )
 }
+function GuestInfoItem({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
+  return (
+    <div className="
+      rounded-2xl
+      border border-neutral-200
+      bg-neutral-50
+      p-4
+    ">
+      <span className="
+        block
+        text-[10px]
+        font-semibold
+        uppercase
+        tracking-[0.16em]
+        text-neutral-400
+      ">
+        {label}
+      </span>
 
+      <strong className="
+        mt-2 block
+        break-words
+        text-sm
+        font-semibold
+        text-neutral-900
+      ">
+        {value}
+      </strong>
+    </div>
+  )
+}
 function StatCard({
   title,
   value,
