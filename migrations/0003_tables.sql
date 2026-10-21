@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS event_tables (
 
   table_number INTEGER NOT NULL UNIQUE,
 
-  capacity INTEGER NOT NULL DEFAULT 8,
+  capacity INTEGER NOT NULL DEFAULT 10,
 
   table_type TEXT NOT NULL DEFAULT 'regular'
     CHECK (table_type IN ('regular', 'vip')),
@@ -30,7 +30,7 @@ WITH RECURSIVE numbers(n) AS (
 
   SELECT n + 1
   FROM numbers
-  WHERE n < 95
+  WHERE n < 45
 )
 
 INSERT OR IGNORE INTO event_tables (
@@ -41,7 +41,7 @@ INSERT OR IGNORE INTO event_tables (
 )
 SELECT
   n,
-  8,
+  10,
   'regular',
   1
 FROM numbers;
