@@ -72,7 +72,6 @@ const [firstName, setFirstName] = useState('')
 const [lastName, setLastName] = useState('')
 const [email, setEmail] = useState('')
 const [specialty, setSpecialty] = useState('')
-const [governorate, setGovernorate] = useState('')
 const [invitedBy, setInvitedBy] = useState('')
 const [consentAccepted, setConsentAccepted] =
   useState(false)
@@ -82,7 +81,6 @@ const [registrationErrors, setRegistrationErrors] = useState({
   lastName: '',
   email: '',
   specialty: '',
-  governorate: '',
   invitedBy: '',
 
 })
@@ -198,7 +196,6 @@ const cleanPhone = normalizeLibyanPhone(phone)
   lastName: '',
     email: '',
     specialty: '',
-    governorate: '',
    invitedBy: '',
 
   }
@@ -234,10 +231,6 @@ if (!specialty) {
   newErrors.specialty = 'Please select your specialty.'
 }
 
-// if (!governorate) {
-//   newErrors.governorate =
-//     'Please select your governorate.'
-// }
 
 if (!invitedBy) {
   newErrors.invitedBy =
@@ -272,7 +265,6 @@ if (
         phone: cleanPhone,
         email: cleanEmail,
         specialty,
-        governorate,
         invitedBy,
       }),
     })
@@ -406,7 +398,6 @@ const resetInvitation = () => {
   setLastName('')
   setEmail('')
   setSpecialty('')
-  setGovernorate('')
   setInvitedBy('')
   setConsentAccepted(false)
   setPrivacyAccepted(false)
@@ -420,7 +411,6 @@ const resetInvitation = () => {
     lastName: '',
     email: '',
     specialty: '',
-    governorate: '',
     invitedBy: '',
 
   })
@@ -697,78 +687,6 @@ return (
               </p>
             )}
           </div>
-            {/* <div className="space-y-2">
-            <label
-              htmlFor="governorate"
-              className="block text-sm font-medium text-neutral-800"
-            >
-              Governorate
-            </label>
-
-            <select
-              id="governorate"
-              value={governorate}
-              onChange={(e) => {
-                setGovernorate(e.target.value)
-
-                setRegistrationErrors((prev) => ({
-                  ...prev,
-                  governorate: '',
-                }))
-              }}
-              className="
-                w-full
-                rounded-2xl
-                border
-                border-neutral-300
-                bg-white
-                px-4
-                py-3.5
-                text-neutral-900
-                outline-none
-                transition
-                focus:border-[#e5a01a]
-                focus:ring-4
-                focus:ring-[#e5a01a]/10
-              "
-            >
-              <option value="">Select Governorate</option>
-              <option value="Alexandria">Alexandria</option>
-              <option value="Aswan">Aswan</option>
-              <option value="Asyut">Asyut</option>
-              <option value="Beheira">Beheira</option>
-              <option value="Beni Suef">Beni Suef</option>
-              <option value="Cairo">Cairo</option>
-              <option value="Dakahlia">Dakahlia</option>
-              <option value="Damietta">Damietta</option>
-              <option value="Fayoum">Fayoum</option>
-              <option value="Gharbia">Gharbia</option>
-              <option value="Giza">Giza</option>
-              <option value="Ismailia">Ismailia</option>
-              <option value="Kafr El Sheikh">Kafr El Sheikh</option>
-              <option value="Luxor">Luxor</option>
-              <option value="Matrouh">Matrouh</option>
-              <option value="Minya">Minya</option>
-              <option value="Monufia">Monufia</option>
-              <option value="New Valley">New Valley</option>
-              <option value="North Sinai">North Sinai</option>
-              <option value="Port Said">Port Said</option>
-              <option value="Qalyubia">Qalyubia</option>
-              <option value="Qena">Qena</option>
-              <option value="Red Sea">Red Sea</option>
-              <option value="Sharqia">Sharqia</option>
-              <option value="Sohag">Sohag</option>
-              <option value="South Sinai">South Sinai</option>
-              <option value="Suez">Suez</option>
-            </select>
-
-            {registrationErrors.governorate && (
-              <p className="text-sm text-red-600">
-                {registrationErrors.governorate}
-              </p>
-            )}
-
-            </div> */}
 
 
             <div className="space-y-2">

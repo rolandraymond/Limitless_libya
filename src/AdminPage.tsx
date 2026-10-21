@@ -64,7 +64,6 @@ type AdminGuest = {
   phone: string
   email: string | null
   specialty: string | null
-  governorate: string | null
   invitedBy: string | null
   rsvpStatus: string
   isVip: boolean
@@ -640,8 +639,6 @@ await Promise.all([
         Specialty:
           guest.specialty || '',
 
-        Governorate:
-          guest.governorate || '',
 
         'Invited By':
           guest.invitedBy || '',
@@ -2103,12 +2100,6 @@ guests.map((guest) => (
             }
           />
 
-          <GuestInfoItem
-            label="Governorate"
-            value={
-              selectedGuestInfo.governorate || '—'
-            }
-          />
 
           <GuestInfoItem
             label="Mobile"

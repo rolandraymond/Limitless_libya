@@ -28,7 +28,6 @@ interface RSVPBody {
   phone?: string
   email?: string
   specialty?: string
-  governorate?: string
   invitedBy?: string
 }
 
@@ -44,35 +43,6 @@ const ALLOWED_SPECIALTIES = new Set([
 ])
 
 
-// const ALLOWED_GOVERNORATES = new Set([
-//   'Alexandria',
-//   'Aswan',
-//   'Asyut',
-//   'Beheira',
-//   'Beni Suef',
-//   'Cairo',
-//   'Dakahlia',
-//   'Damietta',
-//   'Fayoum',
-//   'Gharbia',
-//   'Giza',
-//   'Ismailia',
-//   'Kafr El Sheikh',
-//   'Luxor',
-//   'Matrouh',
-//   'Minya',
-//   'Monufia',
-//   'New Valley',
-//   'North Sinai',
-//   'Port Said',
-//   'Qalyubia',
-//   'Qena',
-//   'Red Sea',
-//   'Sharqia',
-//   'Sohag',
-//   'South Sinai',
-//   'Suez',
-// ])
 
 const ALLOWED_INVITED_BY = new Set([
  'Nada Jawad',
@@ -525,7 +495,6 @@ const name =
   `${firstName || ''} ${lastName || ''}`.trim()
 const email = body.email?.trim().toLowerCase()
 const specialty = body.specialty?.trim()
-const governorate = ''
 const invitedBy = body.invitedBy?.trim()
 
 
@@ -629,27 +598,7 @@ if (!ALLOWED_SPECIALTIES.has(specialty)) {
   )
 }
 
-// if (!governorate) {
-//   return Response.json(
-//     {
-//       success: false,
-//       code: 'GOVERNORATE_REQUIRED',
-//       error: 'Please select your governorate.',
-//     },
-//     { status: 400 }
-//   )
-// }
 
-// if (!ALLOWED_GOVERNORATES.has(governorate)) {
-//   return Response.json(
-//     {
-//       success: false,
-//       code: 'INVALID_GOVERNORATE',
-//       error: 'Please select a valid governorate.',
-//     },
-//     { status: 400 }
-//   )
-// }
 
 if (!invitedBy) {
   return Response.json(
@@ -682,12 +631,11 @@ const result = await env.DB.prepare(`
     phone,
     email,
     specialty,
-    governorate,
     invited_by,
     rsvp_status,
     qr_token
   )
-  VALUES (?, ?,?, ?, ?, ?, ?, ?, 'confirmed', ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
 `)
   .bind(
     firstName,
@@ -696,7 +644,6 @@ const result = await env.DB.prepare(`
     phone,
     email,
     specialty,
-    governorate,
     invitedBy,
     qrToken
   )
@@ -804,7 +751,6 @@ const result = await env.DB.prepare(`
             lastName,
             fullName: name,
             specialty,
-            governorate,
             invitedBy,
             phone,
             email,
@@ -1184,7 +1130,6 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           phone,
           email,
           specialty,
-          governorate,
           invited_by,
           rsvp_status,
           is_vip,
@@ -1228,7 +1173,6 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           phone,
           email,
           specialty,
-          governorate,
           invited_by,
           rsvp_status,
           is_vip,
@@ -1267,7 +1211,6 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           phone,
           email,
           specialty,
-          governorate,
           invited_by,
           rsvp_status,
           is_vip,
@@ -1295,7 +1238,6 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           phone,
           email,
           specialty,
-          governorate,
           invited_by,
           rsvp_status,
           is_vip,
@@ -1340,7 +1282,7 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
         phone: guest.phone,
         email: guest.email,
         specialty: guest.specialty,
-        governorate: guest.governorate,
+        
         invitedBy: guest.invited_by,
         rsvpStatus: guest.rsvp_status,
         isVip: Boolean(guest.is_vip),
