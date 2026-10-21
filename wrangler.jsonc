@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "limitless-libya",
+  "name": "limitless-libya-event",
   "main": "./worker/index.ts",
   "compatibility_date": "2026-09-13",
   "keep_vars": true,
@@ -20,6 +20,6 @@
   "vars": {
     "ADMIN_USERNAME": "admin",
     "EMAIL_FROM": "Limitless Naturals <invitation@mail.tungsten-media.online>",
-    "PUBLIC_APP_URL": "https://limitless-libya.rolandremon300.workers.dev"
+    "PUBLIC_APP_URL": "https://limitless-libya-event.rolandremon300.workers.dev"
   }
 }
