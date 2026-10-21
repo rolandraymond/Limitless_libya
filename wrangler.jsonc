@@ -1,27 +1,25 @@
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "shamsak-gowak-site",
-	"main": "./worker/index.ts",
-	"compatibility_date": "2026-09-13",
-	"keep_vars": true,
-	"assets": {
-		"directory": "./dist",
-		"binding": "ASSETS",
-		"not_found_handling": "single-page-application",
-		"run_worker_first": [
-			"/api/*"
-		]
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "shamsak-gowak-db",
-			"database_id": "a848f97f-af7c-4c4a-b162-4155670d210c"
-		}
-	],
-	"vars": {
-		"ADMIN_USERNAME": "admin",
-		"EMAIL_FROM": "Shamsak Gowak <invitation@mail.tungsten-media.online>",
-		"PUBLIC_APP_URL": "https://shamsak-gowak-site.rolandremon300.workers.dev"
-	}
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "limitless-libya",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-09-13",
+  "keep_vars": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shamsak-gowak-db",
+      "database_id": "a848f97f-af7c-4c4a-b162-4155670d210c"
+    }
+  ],
+  "vars": {
+    "ADMIN_USERNAME": "admin",
+    "EMAIL_FROM": "Limitless Naturals <invitation@mail.tungsten-media.online>",
+    "PUBLIC_APP_URL": "https://limitless-libya.rolandremon300.workers.dev"
+  }
 }

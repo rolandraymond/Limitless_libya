@@ -4,38 +4,44 @@ import { CalendarDays, Check, MapPin } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import './registration-libya.css'
 
-function normalizePhoneInput(value: string) {
+function normalizeLibyanPhone(value: string): string | null {
+  if (typeof value !== 'string') return null
+
   const arabicDigits = '٠١٢٣٤٥٦٧٨٩'
   const easternDigits = '۰۱۲۳۴۵۶۷۸۹'
 
-  const cleaned = value
+  let cleaned = value
     .trim()
-    .replace(/[٠-٩]/g, (d) =>
-      String(arabicDigits.indexOf(d))
+    .replace(/[٠-٩]/g, digit =>
+      String(arabicDigits.indexOf(digit))
     )
-    .replace(/[۰-۹]/g, (d) =>
-      String(easternDigits.indexOf(d))
+    .replace(/[۰-۹]/g, digit =>
+      String(easternDigits.indexOf(digit))
     )
     .replace(/[\s()-]/g, '')
 
-  // 010 / 011 / 012 / 015
-  if (/^01[0125]\d{8}$/.test(cleaned)) {
-    return cleaned
+  if (cleaned.startsWith('00')) {
+    cleaned = `+${cleaned.slice(2)}`
   }
 
-  // +2010 / +2011 / +2012 / +2015
-  if (/^\+201[0125]\d{8}$/.test(cleaned)) {
-    return cleaned
+  // Local: 0912345678
+  if (/^09[1-6]\d{7}$/.test(cleaned)) {
+    return `+218${cleaned.slice(1)}`
   }
 
-  // 2010 / 2011 / 2012 / 2015
-  if (/^201[0125]\d{8}$/.test(cleaned)) {
+  // Without the local leading zero: 912345678
+  if (/^9[1-6]\d{7}$/.test(cleaned)) {
+    return `+218${cleaned}`
+  }
+
+  // International without "+": 218912345678
+  if (/^2189[1-6]\d{7}$/.test(cleaned)) {
     return `+${cleaned}`
   }
 
-  // 002010 / 002011 / 002012 / 002015
-  if (/^00201[0125]\d{8}$/.test(cleaned)) {
-    return `+${cleaned.slice(2)}`
+  // International: +218912345678
+  if (/^\+2189[1-6]\d{7}$/.test(cleaned)) {
+    return cleaned
   }
 
   return null
@@ -92,11 +98,11 @@ const lookupInvitation = async (
 ) => {
   e.preventDefault()
 
-  const cleanPhone = normalizePhoneInput(phone)
+  const cleanPhone = normalizeLibyanPhone(phone)
 
   if (!cleanPhone) {
   setPhoneError(
-    'Please enter a valid Egyptian mobile number.'
+    'Please enter a valid Libyan mobile number, e.g. 0912345678.'
   )
   return
 }
@@ -111,7 +117,7 @@ const lookupInvitation = async (
 
   if (!cleanPhone) {
     setPhoneError(
-      'Please enter a valid Egyptian mobile number.'
+      'Please enter a valid Libyan mobile number, e.g. 0912345678.'
     )
     return
   }
@@ -172,11 +178,11 @@ const cleanLastName = lastName.trim()
 
 
   const cleanEmail = email.trim().toLowerCase()
-const cleanPhone = normalizePhoneInput(phone)
+const cleanPhone = normalizeLibyanPhone(phone)
 
 
   if (!cleanPhone) {
-    setServerError('Please enter a valid Egyptian mobile number.')
+    setServerError('Please enter a valid Libyan mobile number, e.g. 0912345678.')
     return
   }
   if (!consentAccepted) {
@@ -228,10 +234,10 @@ if (!specialty) {
   newErrors.specialty = 'Please select your specialty.'
 }
 
-if (!governorate) {
-  newErrors.governorate =
-    'Please select your governorate.'
-}
+// if (!governorate) {
+//   newErrors.governorate =
+//     'Please select your governorate.'
+// }
 
 if (!invitedBy) {
   newErrors.invitedBy =
@@ -241,11 +247,11 @@ if (!invitedBy) {
 setRegistrationErrors(newErrors)
 
 if (
-    newErrors.firstName ||
+  newErrors.firstName ||
   newErrors.lastName ||
   newErrors.email ||
   newErrors.specialty ||
-  newErrors.governorate ||
+
   newErrors.invitedBy
 ) {
   return
@@ -691,7 +697,7 @@ return (
               </p>
             )}
           </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
             <label
               htmlFor="governorate"
               className="block text-sm font-medium text-neutral-800"
@@ -762,7 +768,7 @@ return (
               </p>
             )}
 
-            </div>
+            </div> */}
 
 
             <div className="space-y-2">
@@ -801,15 +807,26 @@ return (
                   focus:ring-[#e5a01a]/10
                 "
               >
-                <option value="">Select Invitation Team</option>
-                <option value="Medical Team">Medical Team</option>
+                 <option value="">Select who invited you</option>
+                {/*<option value="Medical Team">Medical Team</option>
                 <option value="PR Team">PR Team</option>
                 <option value="Chain Team">Chain Team</option>
                 <option value="Sales Team">Sales Team</option>
                 <option value="E-Commerce Team">
                   E-Commerce Team
                 </option>
-              <option value="Staff">Staff</option>
+              <option value="Staff">Staff</option> */}
+              <option value="Nada Jawad">Nada Jawad</option>
+<option value="Nurhan AbdelAziz">Nurhan AbdelAziz</option>
+<option value="Emad Elmiladi">Emad Elmiladi</option>
+<option value="Mansour Alrabeay">Mansour Alrabeay</option>
+<option value="Attia Dabbour">Attia Dabbour</option>
+<option value="Mohamed Alareefi">Mohamed Alareefi</option>
+<option value="Mohamed Sulayman">Mohamed Sulayman</option>
+<option value="Aya Ali">Aya Ali</option>
+<option value="AbdelMoez Abo Akrab">AbdelMoez Abo Akrab</option>
+<option value="Abdullah Hussien">Abdullah Hussien</option>
+<option value="Ghadir Mangoud">Ghadir Mangoud</option>
 
               </select>
 
@@ -1216,7 +1233,7 @@ return (
                     </span>
 
                     <strong className="mt-1 block text-2xl">
-                      {guest.invitationCode}
+                    {guest.invitationCode}
                     </strong>
 
                   </div>

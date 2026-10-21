@@ -10,6 +10,105 @@ import {
 } from 'lucide-react'
 import './libya.css'
 import HeroArtwork from './HeroArtwork'
+import type { LucideIcon } from 'lucide-react'
+
+import { Moon, Dumbbell, Leaf, Heart, Pill } from 'lucide-react'
+
+
+import { useId } from 'react'
+
+
+const pillars = [
+  { Icon: Moon, label: 'Restorative Sleep' },
+  { Icon: Dumbbell, label: 'Daily Exercise' },
+  { Icon: Leaf, label: 'Smart Nutrition' },
+  { Icon: Heart, label: 'Emotional Health' },
+  { Icon: Pill, label: 'Targeted Supplementation' },
+]
+
+function WellnessIcons() {
+  const gradientId = `wellness-${useId().replace(/:/g, '')}`
+
+  return (
+    <div className="relative col-span-full w-full py-8">
+      {/* One shared gradient keeps every icon synchronized. */}
+      <svg
+        width="0"
+        height="0"
+        className="pointer-events-none absolute"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient
+            id={gradientId}
+            gradientUnits="userSpaceOnUse"
+            x1="0"
+            y1="0"
+            x2="24"
+            y2="0"
+            spreadMethod="repeat"
+          >
+            <stop offset="0%" stopColor="#75e4f6" />
+            <stop offset="25%" stopColor="#459cff" />
+            <stop offset="50%" stopColor="#a879ef" />
+            <stop offset="75%" stopColor="#ed74cf" />
+            <stop offset="100%" stopColor="#75e4f6" />
+
+            <animateTransform
+              attributeName="gradientTransform"
+              type="translate"
+              from="0 0"
+              to="24 0"
+              dur="4s"
+              calcMode="linear"
+              repeatCount="indefinite"
+            />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      <div className="mx-auto grid w-full max-w-3xl grid-cols-5 items-start gap-2 px-2 sm:gap-6 sm:px-6">
+        {pillars.map(({ Icon, label }) => (
+          <div
+            key={label}
+            className="flex min-w-0 flex-col items-center gap-4 text-center"
+          >
+            <Icon
+              className="h-9 w-9 shrink-0 sm:h-14 sm:w-14 lg:h-16 lg:w-16"
+              stroke={`url(#${gradientId})`}
+              strokeWidth={1.8}
+              aria-hidden="true"
+            />
+
+        <span
+          className="max-w-32 text-[9px] leading-tight font-extrabold text-white uppercase sm:text-xs"
+          style={{ fontFamily: "'Montserrat', sans-serif" }}
+        >
+          {label}
+        </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="relative mx-auto mt-12 w-full px-3 pb-8 text-center">
+  <h2
+    className="!m-0 !text-[clamp(22px,4.5vw,54px)] !leading-tight !font-medium !tracking-tight !text-white"
+    style={{ fontFamily: "'Montserrat', sans-serif" }}
+  >
+    FIVE DAILY DECISIONS
+  </h2>
+
+<p
+  className="bg-gradient-to-r from-[#7ca8cf] via-[#a18bdf] to-[#bd65c8] bg-clip-text text-center text-[clamp(40px,7vw,84px)] leading-tight text-transparent"
+  style={{ fontFamily: "'Oooh Baby', cursive" }}
+>
+  One Limitless Life
+</p>
+</div>
+    </div>
+  )
+}
+
 
 const LibyaGlobe = lazy(() => import('./LibyaGlobe'))
 
@@ -58,24 +157,55 @@ export default function LibyaHome() {
 >
   <LibyaGlobe />
 </Suspense>
+
           <ul className="ly-country-accessible">{countries.map(country => <li key={country}>{country}{country === 'Libya' ? ' — NEW CHAPTER' : ''}</li>)}</ul>
         </div>
+        
       </section>
       <section className="ly-section ly-about" id="who-we-are">
         <div><p className="ly-eyebrow">Who We Are</p><h2>Limitless Health Since 2020</h2><p className="ly-established">Established by EVA Pharma.</p></div>
         <div className="ly-about-copy"><p>Limitless Naturals is a wellness brand focused on preventive health and nutritional supplements.</p><p className="ly-muted">From daily nutrition to targeted supplementation, we bring science-led products into everyday life.</p></div>
+        <WellnessIcons />
       </section>
+      
+
       <div className="ly-countdown-band" role="group" aria-label="Event countdown">
         <div className="ly-hero-countdown">
           <p className="ly-countdown-title">The Libyan Chapter Begins</p>
           <div className="ly-countdown-values"><Countdown /></div>
+          
+          
         </div>
       </div>
+     
+      
+  {/* <HeroArtwork /> */}
+<section
+  id="beginning"
+  className="ly-hero ly-section relative isolate flex min-h-svh w-full items-center overflow-hidden bg-[#101225]"
+  aria-label="Limitless Naturals launch in Libya"
+>
+  <video
+    autoPlay
+    muted
+    loop
+    playsInline
+    preload="metadata"
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
+  >
+    <source
+      src="/assets/magnific_animate-the-provided-image-with-extremely-subtle-s_kling_1080p_2-1_24fps_38199_1.mp4"
+      type="video/mp4"
+    />
+  </video>
 
-      <section className="ly-hero ly-section" id="beginning">
-  <HeroArtwork />
+  <div
+    className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-[#101225]/85 via-[#101225]/40 to-transparent"
+    aria-hidden="true"
+  />
 
-  <div className="ly-hero-inner">
+  <div className="ly-hero-inner relative z-10 w-full">
     <div className="ly-hero-content">
       <p className="ly-eyebrow">TRIPOLI, LIBYA</p>
 
@@ -87,10 +217,12 @@ export default function LibyaHome() {
 
       <div className="ly-hero-description">
         <p>
-          Expanding our presence across Egypt, Saudi Arabia, the UAE, and Sudan.
+          Expanding our presence across Egypt, Saudi Arabia,
+          the UAE, and Sudan.
         </p>
         <p>
-          We’re bringing our science-led approach to everyday wellness to a new market.
+          We’re bringing our science-led approach to everyday
+          wellness to a new market.
         </p>
       </div>
 
@@ -103,12 +235,12 @@ export default function LibyaHome() {
         14 November 2026 — The Libyan Chapter Begins
       </p>
     </div>
-
   </div>
 </section>
       <section className="ly-section ly-event" id="event">
         <p className="ly-eyebrow">Limitless Naturals Launch in Libya</p><h2>Let’s Begin This Chapter Together</h2><p className="ly-muted">A new market. A shared vision for everyday wellness.</p>
         <div className="ly-event-grid">
+          
           <div><CalendarDays aria-hidden="true" /><span>Date</span><strong>Saturday, 14 November 2026</strong></div>
           <div><Clock3 aria-hidden="true" /><span>Time</span><strong>3:00 PM – 9:00 PM</strong><small>Africa/Tripoli</small></div>
           <div><MapPin aria-hidden="true" /><span>Venue</span><strong>Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya</strong></div>

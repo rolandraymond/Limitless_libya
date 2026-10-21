@@ -44,59 +44,92 @@ const ALLOWED_SPECIALTIES = new Set([
 ])
 
 
-const ALLOWED_GOVERNORATES = new Set([
-  'Alexandria',
-  'Aswan',
-  'Asyut',
-  'Beheira',
-  'Beni Suef',
-  'Cairo',
-  'Dakahlia',
-  'Damietta',
-  'Fayoum',
-  'Gharbia',
-  'Giza',
-  'Ismailia',
-  'Kafr El Sheikh',
-  'Luxor',
-  'Matrouh',
-  'Minya',
-  'Monufia',
-  'New Valley',
-  'North Sinai',
-  'Port Said',
-  'Qalyubia',
-  'Qena',
-  'Red Sea',
-  'Sharqia',
-  'Sohag',
-  'South Sinai',
-  'Suez',
-])
+// const ALLOWED_GOVERNORATES = new Set([
+//   'Alexandria',
+//   'Aswan',
+//   'Asyut',
+//   'Beheira',
+//   'Beni Suef',
+//   'Cairo',
+//   'Dakahlia',
+//   'Damietta',
+//   'Fayoum',
+//   'Gharbia',
+//   'Giza',
+//   'Ismailia',
+//   'Kafr El Sheikh',
+//   'Luxor',
+//   'Matrouh',
+//   'Minya',
+//   'Monufia',
+//   'New Valley',
+//   'North Sinai',
+//   'Port Said',
+//   'Qalyubia',
+//   'Qena',
+//   'Red Sea',
+//   'Sharqia',
+//   'Sohag',
+//   'South Sinai',
+//   'Suez',
+// ])
 
 const ALLOWED_INVITED_BY = new Set([
-  'Medical Team',
-  'PR Team',
-  'Chain Team',
-  'Sales Team',
-  'E-Commerce Team',
-  'Staff',
+ 'Nada Jawad',
+  'Nurhan AbdelAziz',
+  'Emad Elmiladi',
+  'Mansour Alrabeay',
+  'Attia Dabbour',
+  'Mohamed Alareefi',
+  'Mohamed Sulayman',
+  'Aya Ali',
+  'AbdelMoez Abo Akrab',
+  'Abdullah Hussien',
+  'Ghadir Mangoud',
 ])
 
-function normalizeEgyptianPhone(phone: string) {
-  const cleaned = phone.replace(/[\s-]/g, '')
+function normalizeLibyanPhone(value: string): string | null {
+  if (typeof value !== 'string') return null
 
-  if (/^01[0125]\d{8}$/.test(cleaned)) {
-    return `+20${cleaned.slice(1)}`
+  const arabicDigits = '٠١٢٣٤٥٦٧٨٩'
+  const easternDigits = '۰۱۲۳۴۵۶۷۸۹'
+
+  let cleaned = value
+    .trim()
+    .replace(/[٠-٩]/g, digit =>
+      String(arabicDigits.indexOf(digit))
+    )
+    .replace(/[۰-۹]/g, digit =>
+      String(easternDigits.indexOf(digit))
+    )
+    .replace(/[\s()-]/g, '')
+
+  if (cleaned.startsWith('00')) {
+    cleaned = `+${cleaned.slice(2)}`
   }
 
-  if (/^\+201[0125]\d{8}$/.test(cleaned)) {
+  // Local: 0912345678
+  if (/^09[1-6]\d{7}$/.test(cleaned)) {
+    return `+218${cleaned.slice(1)}`
+  }
+
+  // Without the local leading zero: 912345678
+  if (/^9[1-6]\d{7}$/.test(cleaned)) {
+    return `+218${cleaned}`
+  }
+
+  // International without "+": 218912345678
+  if (/^2189[1-6]\d{7}$/.test(cleaned)) {
+    return `+${cleaned}`
+  }
+
+  // International: +218912345678
+  if (/^\+2189[1-6]\d{7}$/.test(cleaned)) {
     return cleaned
   }
 
   return null
 }
-
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)
 }
@@ -169,7 +202,7 @@ export default {
         const body = await request.json<RSVPBody>()
 
         const phone = body.phone
-          ? normalizeEgyptianPhone(body.phone)
+          ? normalizeLibyanPhone(body.phone)
           : null
 
 if (!phone) {
@@ -177,7 +210,7 @@ if (!phone) {
     {
       success: false,
       code: 'INVALID_PHONE',
-      error: 'Please enter a valid Egyptian mobile number.',
+      error: 'Please enter a valid Libyan mobile number, e.g. 0912345678.',
     },
     { status: 400 }
   )
@@ -274,7 +307,7 @@ if (!phone) {
         const body = await request.json<RSVPBody>()
 
         const phone = body.phone
-          ? normalizeEgyptianPhone(body.phone)
+          ? normalizeLibyanPhone(body.phone)
           : null
 
         if (!phone) {
@@ -282,7 +315,7 @@ if (!phone) {
             {
               success: false,
               code: 'INVALID_PHONE',
-              error: 'Please enter a valid Egyptian mobile number.',
+              error: 'Please enter a valid Libyan mobile number, e.g. 0912345678.',
             },
             { status: 400 }
           )
@@ -492,7 +525,7 @@ const name =
   `${firstName || ''} ${lastName || ''}`.trim()
 const email = body.email?.trim().toLowerCase()
 const specialty = body.specialty?.trim()
-const governorate = body.governorate?.trim()
+const governorate = ''
 const invitedBy = body.invitedBy?.trim()
 
 
@@ -596,27 +629,27 @@ if (!ALLOWED_SPECIALTIES.has(specialty)) {
   )
 }
 
-if (!governorate) {
-  return Response.json(
-    {
-      success: false,
-      code: 'GOVERNORATE_REQUIRED',
-      error: 'Please select your governorate.',
-    },
-    { status: 400 }
-  )
-}
+// if (!governorate) {
+//   return Response.json(
+//     {
+//       success: false,
+//       code: 'GOVERNORATE_REQUIRED',
+//       error: 'Please select your governorate.',
+//     },
+//     { status: 400 }
+//   )
+// }
 
-if (!ALLOWED_GOVERNORATES.has(governorate)) {
-  return Response.json(
-    {
-      success: false,
-      code: 'INVALID_GOVERNORATE',
-      error: 'Please select a valid governorate.',
-    },
-    { status: 400 }
-  )
-}
+// if (!ALLOWED_GOVERNORATES.has(governorate)) {
+//   return Response.json(
+//     {
+//       success: false,
+//       code: 'INVALID_GOVERNORATE',
+//       error: 'Please select a valid governorate.',
+//     },
+//     { status: 400 }
+//   )
+// }
 
 if (!invitedBy) {
   return Response.json(
@@ -634,7 +667,7 @@ if (!ALLOWED_INVITED_BY.has(invitedBy)) {
     {
       success: false,
       code: 'INVALID_INVITED_BY',
-      error: 'Please select a valid invitation team.',
+       error: 'Please select a valid person.',
     },
     { status: 400 }
   )

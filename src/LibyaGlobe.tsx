@@ -169,9 +169,12 @@ export default function LibyaGlobe({ assetPath = '/assets', className = '' }: Pr
       world.add(new THREE.Mesh(keep(new THREE.SphereGeometry(radius, 96, 64)), atmosphere))
     }
 
+    const centerEgypt = location(27, 30, 1.012)
     const libyaPoint = location(27, 17, 1.012)
     COUNTRIES.forEach(country => {
       const isLibya = country.name === 'Libya'
+      const isEgypt = country.name === 'Egypt'
+
       const step = REVEAL_ORDER.indexOf(country.name)
       const point = location(country.lat, country.lon, 1.012)
       const marker = glow(point, isLibya ? 0.095 : 0.062)
@@ -215,10 +218,14 @@ export default function LibyaGlobe({ assetPath = '/assets', className = '' }: Pr
           world.add(ring)
           rings.push(ring)
         }
-        return
+      
       }
-      const start = point.clone().normalize()
-      const end = libyaPoint.clone().normalize()
+  if (isEgypt) return
+      
+      // const start = point.clone().normalize()
+      // const end = libyaPoint.clone().normalize()
+      const start = centerEgypt.clone().normalize()
+      const end = point.clone().normalize()
       const angle = start.angleTo(end)
       const samples = Array.from({ length: 81 }, (_, i) => {
         const t = i / 80
@@ -376,7 +383,7 @@ export default function LibyaGlobe({ assetPath = '/assets', className = '' }: Pr
       for (const route of routes) {
         const amount = revealAmounts[route.step]
         // Stop before Libya until its finale; then complete every incoming route.
-        const progress = amount * (0.82 + libya * 0.18)
+        const progress = amount 
         const segments = Math.floor(progress * route.mesh.geometry.parameters.tubularSegments)
         const indicesPerSegment = route.mesh.geometry.parameters.radialSegments * 6
         route.mesh.geometry.setDrawRange(0, segments * indicesPerSegment)
@@ -405,33 +412,94 @@ export default function LibyaGlobe({ assetPath = '/assets', className = '' }: Pr
         label.element.style.transform = `translate(${x + label.offset[0] * factor}px, ${y + label.offset[1] * factor}px)${label.element.classList.contains('ly-map-label-libya') ? ' translateX(-50%)' : ''}`
       }
     }
-    function animate(time: number) {
-      if (container.clientWidth < 600 && lastTime && time - lastTime < 1000 / 30) return
-      const activeDelta = lastTime ? (time - lastTime) / 1000 : 0
-      const delta = Math.min(activeDelta, 0.1)
-      lastTime = time
-      elapsed += delta
-      // At normal frame rates each stage lasts 0.5s. Under a stalled/slow GPU,
-      // stretch the reveal rather than consuming several country fades at once.
-      revealElapsed = Math.min(REVEAL_END, revealElapsed + Math.min(activeDelta, 0.05))
-      if (!dragging && performance.now() - lastInput > 2800) drag.multiplyScalar(Math.exp(-delta * 1.5))
-      world.rotation.set(drag.y, drag.x + Math.sin(elapsed * 0.18) * 0.012, 0)
-      rings.forEach((ring, i) => {
-        const phase = (elapsed * 0.18 + i / 3) % 1
-        ring.scale.setScalar(1 + phase * 1.8)
-        const libya = THREE.MathUtils.smoothstep((revealElapsed - INITIAL_PAUSE - 4 * REVEAL_SECONDS) / REVEAL_SECONDS, 0, 1)
-        ring.material.opacity = (1 - phase) * 0.8 * libya
-      })
-      flights.forEach((flight, i) => {
-        const amount = THREE.MathUtils.smoothstep((revealElapsed - INITIAL_PAUSE - flight.step * REVEAL_SECONDS) / REVEAL_SECONDS, 0, 1)
-        const libya = THREE.MathUtils.smoothstep((revealElapsed - INITIAL_PAUSE - 4 * REVEAL_SECONDS) / REVEAL_SECONDS, 0, 1)
-        const routeProgress = amount * (0.82 + libya * 0.18)
-        flight.sprite.visible = amount > 0 && !reducedMotion.matches
-        flight.sprite.material.opacity = amount
-        flight.sprite.position.copy(flight.curve.getPoint(((elapsed * 0.12 + i * 0.23) % 1) * routeProgress))
-      })
-      draw()
-    }
+
+
+const INTRO_DURATION = 4
+
+function animate(time: number) {
+  if (
+    container.clientWidth < 600 &&
+    lastTime &&
+    time - lastTime < 1000 / 30
+  ) return
+
+  const activeDelta = lastTime ? (time - lastTime) / 1000 : 0
+  const delta = Math.min(activeDelta, 0.1)
+
+  lastTime = time
+  elapsed += delta
+
+  if (!dragging && performance.now() - lastInput > 2800) {
+    drag.multiplyScalar(Math.exp(-delta * 1.5))
+  }
+
+  if (elapsed < INTRO_DURATION) {
+    const progress = THREE.MathUtils.clamp(
+      elapsed / INTRO_DURATION,
+      0,
+      1
+    )
+
+    const eased = 1 - Math.pow(1 - progress, 3)
+
+    world.rotation.set(
+      0,
+      -Math.PI * 2 * (1 - eased),
+      0
+    )
+
+    revealElapsed = 0
+  } else {
+    revealElapsed = Math.min(
+      REVEAL_END,
+      revealElapsed + Math.min(activeDelta, 0.05)
+    )
+
+    world.rotation.set(drag.y, drag.x, 0)
+  }
+
+  const libya = THREE.MathUtils.smoothstep(
+    (
+      revealElapsed -
+      INITIAL_PAUSE -
+      4 * REVEAL_SECONDS
+    ) / REVEAL_SECONDS,
+    0,
+    1
+  )
+
+  rings.forEach((ring, i) => {
+    const phase = (elapsed * 0.18 + i / 3) % 1
+
+    ring.scale.setScalar(1 + phase * 1.8)
+    ring.material.opacity = (1 - phase) * 0.8 * libya
+  })
+
+  flights.forEach((flight, i) => {
+    const amount = THREE.MathUtils.smoothstep(
+      (
+        revealElapsed -
+        INITIAL_PAUSE -
+        flight.step * REVEAL_SECONDS
+      ) / REVEAL_SECONDS,
+      0,
+      1
+    )
+
+    const routeProgress = amount
+
+    flight.sprite.visible = amount > 0 && !reducedMotion.matches
+    flight.sprite.material.opacity = amount
+
+    flight.sprite.position.copy(
+      flight.curve.getPoint(
+        ((elapsed * 0.12 + i * 0.23) % 1) * routeProgress
+      )
+    )
+  })
+
+  draw()
+}
     function updateLoop() {
       renderer.setAnimationLoop(null)
       lastTime = 0
