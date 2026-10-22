@@ -146,8 +146,26 @@ export default function LibyaHome() {
     </header>
     <main id="ly-main">
       <section className="ly-section ly-growing" id="growing">
-        <div className="ly-growing-copy"><p className="ly-eyebrow">Growing Across Borders</p><h2>Limitless Naturals Libya Launch Event
-Saturday, 14th November 2026</h2><p className="ly-market-line">Egypt · Saudi Arabia · United Arab Emirates</p><p className="ly-muted">Every market represents a new opportunity to build partnerships and bring our approach to wellness to more people.</p></div>
+   <div className="ly-growing-copy">
+<p className="ly-eyebrow">Growing Across Borders</p>
+
+<h2 className="mb-2!">
+  Limitless Naturals Libya Launch Event
+</h2>
+
+<p className="mt-0! mb-8! text-lg! font-medium md:text-xl!">
+  Saturday, 14 November 2026
+</p>
+
+<p className="ly-market-line">
+  Egypt · Saudi Arabia · United Arab Emirates
+</p>
+
+  <p className="ly-muted">
+    Every market represents a new opportunity to build partnerships
+    and bring our approach to wellness to more people.
+  </p>
+</div>
         <div className="ly-presence" aria-label="Country presence">
           <Suspense
   fallback={
