@@ -68,7 +68,7 @@ export default function PassPage() {
   }, [])
 
   const pageClass =
-"relative isolate flex min-h-svh items-center justify-center bg-[#101225] bg-[url('/assets/libya-hero.jpg')] bg-cover bg-center bg-fixed px-4 py-10 font-['Montserrat',sans-serif] text-[#f4f7fa] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-[#101225]/55 before:content-['']"
+"relative isolate flex min-h-svh items-center justify-center bg-[#101225] bg-[url('/assets/libya-hero.png')] bg-cover bg-center bg-fixed px-4 py-10 font-['Montserrat',sans-serif] text-[#f4f7fa] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-[#101225]/55 before:content-['']"
   if (loading) {
     return (
       <main className={pageClass} aria-busy="true">
