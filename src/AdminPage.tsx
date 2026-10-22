@@ -466,7 +466,7 @@ export default function AdminPage() {
     }
 
     return new Intl.DateTimeFormat("en-EG", {
-      timeZone: "Libya/Tripoli",
+      timeZone: "Africa/Tripoli",
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -1830,7 +1830,7 @@ export default function AdminPage() {
                   value={
                     selectedGuestInfo.createdAt
                       ? new Intl.DateTimeFormat("en-EG", {
-                          timeZone: "Libya/Tripoli",
+                          timeZone: "Africa/Tripoli",
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
