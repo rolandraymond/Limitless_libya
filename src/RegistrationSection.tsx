@@ -429,7 +429,7 @@ return (
         <div className="shell rsvp-grid">
           <div className="rsvp-copy">
             <span className="section-kicker">YOUR INVITATION</span>
-<h2>Register for the<br />Libya Launch</h2>      
+<h2>Register for the<br />Limitless Naturals Libya Launch Event</h2>      
             <p>Confirm your attendance and we’ll keep your invitation details ready for the event.</p>
             <div className="mini-meta"><CalendarDays /> 14 NOV 2026</div>
             <div className="mini-meta"><MapPin /> LANCASTER, BURJ AL-HAYAT HOTEL, TRIPOLI, LIBYA</div>
@@ -676,6 +676,10 @@ return (
                 Pharmacist
               </option>
 
+              <option value="Urologist">
+                Urologist
+              </option>
+
               <option value="Staff">
                 Staff
               </option>
@@ -735,16 +739,25 @@ return (
                 </option>
               <option value="Staff">Staff</option> */}
               <option value="Nada Jawad">Nada Jawad</option>
-<option value="Nurhan AbdelAziz">Nurhan AbdelAziz</option>
-<option value="Emad Elmiladi">Emad Elmiladi</option>
-<option value="Mansour Alrabeay">Mansour Alrabeay</option>
-<option value="Attia Dabbour">Attia Dabbour</option>
-<option value="Mohamed Alareefi">Mohamed Alareefi</option>
-<option value="Mohamed Sulayman">Mohamed Sulayman</option>
-<option value="Aya Ali">Aya Ali</option>
-<option value="AbdelMoez Abo Akrab">AbdelMoez Abo Akrab</option>
-<option value="Abdullah Hussien">Abdullah Hussien</option>
-<option value="Ghadir Mangoud">Ghadir Mangoud</option>
+              <option value="Nurhan AbdelAziz">Nurhan AbdelAziz</option>
+              <option value="Emad Elmiladi">Emad Elmiladi</option>
+              <option value="Mansour Alrabeay">Mansour Alrabeay</option>
+              <option value="Attia Dabbour">Attia Dabbour</option>
+              <option value="Mohamed Alareefi">Mohamed Alareefi</option>
+              <option value="Mohamed Sulayman">Mohamed Sulayman</option>
+              <option value="Aya Ali">Aya Ali</option>
+              <option value="AbdelMoez Abo Akrab">AbdelMoez Abo Akrab</option>
+              <option value="Abdullah Hussien">Abdullah Hussien</option>
+              <option value="Ghadir Mangoud">Ghadir Mangoud</option>
+              <option value="Mina Morad (Marketing)">
+                Mina Morad (Marketing)
+              </option>
+              <option value="Ahmed AbdelGawad (Sales Manager)">
+                Ahmed AbdelGawad (Sales Manager)
+              </option>
+              <option value="Mohamed Hashem (Country Manager)">
+                Mohamed Hashem (Country Manager)
+              </option>
 
               </select>
 

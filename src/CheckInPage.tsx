@@ -222,7 +222,7 @@ export default function CheckInPage() {
 
           <div className="mt-6 flex items-center justify-center gap-2 text-xs text-neutral-400">
             <MapPin size={14} />
-            The Nile Ritz-Carlton, Cairo
+            Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya
           </div>
 
         </div>

@@ -127,7 +127,7 @@ function Countdown() {
   }, [])
   if (remaining === 0) return <p className="ly-countdown-ended">The Libyan Chapter Has Begun</p>
   const values = [Math.floor(remaining / 86400000), Math.floor(remaining / 3600000) % 24, Math.floor(remaining / 60000) % 60, Math.floor(remaining / 1000) % 60]
-  return <div className="ly-countdown" role="timer" aria-label="Time until 14 November 2026, 3:00 PM, Africa/Tripoli">
+  return <div className="ly-countdown" role="timer" aria-label="Time until 14 November 2026, 3:00 PM, Libya/Tripoli">
     {values.map((value, i) => <div key={i}><strong>{String(value).padStart(2, '0')}</strong><span>{['Days', 'Hours', 'Minutes', 'Seconds'][i]}</span></div>)}
   </div>
 }
@@ -146,7 +146,8 @@ export default function LibyaHome() {
     </header>
     <main id="ly-main">
       <section className="ly-section ly-growing" id="growing">
-        <div className="ly-growing-copy"><p className="ly-eyebrow">Growing Across Borders</p><h2>Our Next Chapter Begins in Libya.</h2><p className="ly-market-line">Egypt · Saudi Arabia · United Arab Emirates</p><p className="ly-muted">Every market represents a new opportunity to build partnerships and bring our approach to wellness to more people.</p></div>
+        <div className="ly-growing-copy"><p className="ly-eyebrow">Growing Across Borders</p><h2>Limitless Naturals Libya Launch Event
+Saturday, 14th November 2026</h2><p className="ly-market-line">Egypt · Saudi Arabia · United Arab Emirates</p><p className="ly-muted">Every market represents a new opportunity to build partnerships and bring our approach to wellness to more people.</p></div>
         <div className="ly-presence" aria-label="Country presence">
           <Suspense
   fallback={
@@ -163,7 +164,7 @@ export default function LibyaHome() {
         
       </section>
       <section className="ly-section ly-about" id="who-we-are">
-        <div><p className="ly-eyebrow">Who We Are</p><h2>Limitless Health Since 2020</h2><p className="ly-established">Established by EVA Pharma.</p></div>
+        <div><p className="ly-eyebrow">Who We Are</p><h2>Limitless Naturals Since 2020</h2><p className="ly-established">Established by EVA Pharma.</p></div>
         <div className="ly-about-copy"><p>Limitless Naturals is a wellness brand focused on preventive health and nutritional supplements.</p><p className="ly-muted">From daily nutrition to targeted supplementation, we bring science-led products into everyday life.</p></div>
         <WellnessIcons />
       </section>
@@ -195,7 +196,7 @@ export default function LibyaHome() {
     className="pointer-events-none absolute inset-0 z-0 h-full w-full object-cover"
   >
     <source
-      src="/assets/magnific_animate-the-provided-image-with-extremely-subtle-s_kling_1080p_2-1_24fps_38199_1.mp4"
+      src="/assets/2.mp4"
       type="video/mp4"
     />
   </video>
@@ -218,7 +219,7 @@ export default function LibyaHome() {
       <div className="ly-hero-description">
         <p>
           Expanding our presence across Egypt, Saudi Arabia,
-          the UAE, and Sudan.
+          the UAE
         </p>
         <p>
           We’re bringing our science-led approach to everyday
@@ -232,7 +233,7 @@ export default function LibyaHome() {
       </a>
 
       <p className="ly-hero-date">
-        14 November 2026 — The Libyan Chapter Begins
+        14 November 2026 — Limitless Naturals Launch event - Libya
       </p>
     </div>
   </div>
@@ -242,7 +243,7 @@ export default function LibyaHome() {
         <div className="ly-event-grid">
           
           <div><CalendarDays aria-hidden="true" /><span>Date</span><strong>Saturday, 14 November 2026</strong></div>
-          <div><Clock3 aria-hidden="true" /><span>Time</span><strong>3:00 PM – 9:00 PM</strong><small>Africa/Tripoli</small></div>
+          <div><Clock3 aria-hidden="true" /><span>Time</span><strong>3:00 PM – 9:00 PM</strong><small>Libya/Tripoli</small></div>
           <div><MapPin aria-hidden="true" /><span>Venue</span><strong>Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya</strong></div>
         </div><p className="ly-welcome">We look forward to welcoming you.</p>
       </section>

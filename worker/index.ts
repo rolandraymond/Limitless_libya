@@ -39,6 +39,7 @@ const ALLOWED_SPECIALTIES = new Set([
   'Gynecologist',
   'Dermatologist',
   'Pharmacist',
+  'Urologist',
   'Staff',
 ])
 
@@ -56,6 +57,9 @@ const ALLOWED_INVITED_BY = new Set([
   'AbdelMoez Abo Akrab',
   'Abdullah Hussien',
   'Ghadir Mangoud',
+  'Mina Morad (Marketing)',
+  'Ahmed AbdelGawad (Sales Manager)',
+  'Mohamed Hashem (Country Manager)',
 ])
 
 function normalizeLibyanPhone(value: string): string | null {
@@ -156,7 +160,7 @@ export default {
     ) {
       return Response.json({
         success: true,
-        message: 'Shamsak Gowak API is running',
+        message: 'limitless-libya-event API is running',
       })
     }
 

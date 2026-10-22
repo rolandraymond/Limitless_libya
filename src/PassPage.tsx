@@ -112,12 +112,12 @@ export default function PassPage() {
           </div>
 
           <strong className="mt-3 block text-xl text-neutral-900">
-            THE NILE RITZ-CARLTON
+            Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya
           </strong>
 
           <div className="mt-2 flex items-center justify-center gap-2 text-sm text-neutral-600">
             <MapPin size={16} />
-            Cairo
+            Tripoli, Libya
           </div>
 
         </div>
