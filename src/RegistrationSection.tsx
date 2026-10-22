@@ -1,9 +1,8 @@
 import type { FormEvent } from 'react'
 import { useState } from 'react'
-import { CalendarDays, Check, MapPin } from 'lucide-react'
+import { CalendarDays, Check, MapPin,ArrowUpRight } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import './registration-libya.css'
-
 function normalizeLibyanPhone(value: string): string | null {
   if (typeof value !== 'string') return null
 
@@ -432,7 +431,20 @@ return (
 <h2>Register for the<br />Limitless Naturals Libya Launch Event</h2>      
             <p>Confirm your attendance and we’ll keep your invitation details ready for the event.</p>
             <div className="mini-meta"><CalendarDays /> 14 NOV 2026</div>
-            <div className="mini-meta"><MapPin /> LANCASTER, BURJ AL-HAYAT HOTEL, TRIPOLI, LIBYA</div>
+<a
+  href="https://maps.app.goo.gl/UzryaF1u8fG2JumT7"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="mt-5 inline-flex items-center gap-3 rounded-xl border border-[#bce6dc]/25 bg-[#bce6dc]/10 px-5 py-4 text-xs font-medium leading-relaxed text-[#bce6dc] no-underline transition hover:border-[#bce6dc]/50 hover:bg-[#bce6dc]/20 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#bce6dc]"
+>
+  <MapPin size={20} className="shrink-0" aria-hidden="true" />
+
+  <span>
+    LANCASTER, BURJ AL-HAYAT HOTEL, TRIPOLI, LIBYA
+  </span>
+
+  <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
+</a>
           </div>
 
           <div className="rsvp-card">
@@ -1066,9 +1078,14 @@ return (
                       14 NOV 2026
                     </span>
 
-                    <span className="mt-1 block text-sm font-medium text-neutral-700">
-                      LANCASTER, BURJ AL-HAYAT HOTEL, TRIPOLI, LIBYA
-                    </span>
+                    <a
+                  href="https://maps.app.goo.gl/UzryaF1u8fG2JumT7"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block text-sm font-medium text-neutral-700 underline underline-offset-4 transition hover:text-[#101225]"
+                >
+                  LANCASTER, BURJ AL-HAYAT HOTEL, TRIPOLI, LIBYA
+                </a>
 
                   </div>
 
