@@ -68,8 +68,7 @@ export default function PassPage() {
   }, [])
 
   const pageClass =
-    "flex min-h-svh items-center justify-center bg-[#101225] px-4 py-10 font-['Montserrat',sans-serif] text-[#f4f7fa]"
-
+"relative isolate flex min-h-svh items-center justify-center bg-[#101225] bg-[url('/assets/libya-hero.jpg')] bg-cover bg-center bg-fixed px-4 py-10 font-['Montserrat',sans-serif] text-[#f4f7fa] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-[#101225]/55 before:content-['']"
   if (loading) {
     return (
       <main className={pageClass} aria-busy="true">
@@ -133,8 +132,7 @@ export default function PassPage() {
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-[32px] border border-[#35435d] bg-[#192039] shadow-2xl">
-          <div className="h-1 bg-[#bce6dc]" />
+        <div className="overflow-hidden rounded-[32px] border border-white/20 bg-[#192039]/50 shadow-2xl backdrop-blur-xl">
 
           <div className="px-5 py-8 text-center sm:px-8">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-[#bce6dc]/30 bg-[#bce6dc]/10 text-[#bce6dc]">
@@ -157,7 +155,7 @@ export default function PassPage() {
 
             <div className="my-7 border-t border-[#35435d]" />
 
-            <div className="rounded-2xl border border-[#35435d] bg-[#11182b] px-4 py-5">
+            <div className="rounded-2xl border border-white/15 bg-[#11182b]/40 px-4 py-5">
               <div className="flex items-center justify-center gap-2 text-sm font-medium text-[#bce6dc]">
                 <CalendarDays size={17} aria-hidden="true" />
                 <span>14 NOVEMBER 2026</span>
@@ -216,7 +214,7 @@ export default function PassPage() {
             </p>
           </div>
 
-          <div className="border-t border-[#35435d] bg-[#11182b] px-5 py-5 text-center">
+         <div className="border-t border-white/15 bg-[#11182b]/40 px-5 py-5 text-center">
             <p className="text-sm font-medium text-[#bce6dc]">
               One Limitless Life
             </p>
