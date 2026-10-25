@@ -42,7 +42,7 @@ Thank you, ${guest.fullName}.
 Your attendance at the Limitless Naturals Libya launch event has been confirmed.
 
 DATE: 14 November 2026
-TIME: 3:00 PM–9:00 PM (Tripoli local time)
+TIME: 4:00 PM–8:00 PM (Tripoli local time)
 VENUE: Lancaster, Burj Al-Hayat Hotel
 LOCATION: Tripoli, Libya
 
@@ -120,7 +120,7 @@ Limitless Naturals`
                       14 November 2026
                     </p>
                     <p style="margin:5px 0 0;color:#aab8c7;font-size:14px;line-height:1.6;">
-                      3:00 PM–9:00 PM · Tripoli local time
+                      4:00 PM–8:00 PM · Tripoli local time
                     </p>
                   </td>
                 </tr>

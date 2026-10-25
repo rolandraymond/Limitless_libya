@@ -163,7 +163,7 @@ export default function PassPage() {
 
               <div className="mt-3 flex items-center justify-center gap-2 text-xs text-[#aab8c7]">
                 <Clock3 size={15} aria-hidden="true" />
-                <span>3:00 PM–9:00 PM · Tripoli time</span>
+                <span>4:00 PM–8:00 PM · Tripoli time</span>
               </div>
 
               <strong className="mt-5 block text-lg font-semibold leading-7 text-[#f4f7fa]">

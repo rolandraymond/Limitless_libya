@@ -127,7 +127,7 @@ function Countdown() {
   }, [])
   if (remaining === 0) return <p className="ly-countdown-ended">The Libyan Chapter Has Begun</p>
   const values = [Math.floor(remaining / 86400000), Math.floor(remaining / 3600000) % 24, Math.floor(remaining / 60000) % 60, Math.floor(remaining / 1000) % 60]
-  return <div className="ly-countdown" role="timer" aria-label="Time until 14 November 2026, 3:00 PM, Libya/Tripoli">
+  return <div className="ly-countdown" role="timer" aria-label="Time until 14 November 2026, 4:00 PM, Libya/Tripoli">
     {values.map((value, i) => <div key={i}><strong>{String(value).padStart(2, '0')}</strong><span>{['Days', 'Hours', 'Minutes', 'Seconds'][i]}</span></div>)}
   </div>
 }
@@ -261,7 +261,7 @@ export default function LibyaHome() {
         <div className="ly-event-grid">
           
           <div><CalendarDays aria-hidden="true" /><span>Date</span><strong>Saturday, 14 November 2026</strong></div>
-          <div><Clock3 aria-hidden="true" /><span>Time</span><strong>3:00 PM – 9:00 PM</strong><small>Libya/Tripoli</small></div>
+          <div><Clock3 aria-hidden="true" /><span>Time</span><strong>4:00 PM – 8:00 PM</strong><small>Libya/Tripoli</small></div>
           <div><MapPin aria-hidden="true" /><span>Venue</span><strong>Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya</strong></div>
         </div><p className="ly-welcome">We look forward to welcoming you.</p>
       </section>
