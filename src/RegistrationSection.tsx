@@ -1,7 +1,8 @@
+import GuestEntryCard from './GuestEntryCard'
+import WorkshopChoice from './WorkshopChoice'
 import type { FormEvent } from 'react'
 import { useState } from 'react'
 import { CalendarDays, Check, MapPin,ArrowUpRight } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
 import './registration-libya.css'
 function normalizeLibyanPhone(value: string): string | null {
   if (typeof value !== 'string') return null
@@ -53,12 +54,17 @@ type InviteGuest = {
   invitationCode: string | null
   rsvpStatus: string
   qrToken: string | null
+  checkedIn?: boolean
+  checkedInAt?: string | null
+  tableNumber?: number | null
+  seatNumber?: number | null
 }
 
 export default function RegistrationSection() {
 const [submitted, setSubmitted] = useState(false)
 
 const [phone, setPhone] = useState('')
+const [workshopRsvp, setWorkshopRsvp] = useState<'yes' | 'no' | null>(null)
 const [guest, setGuest] = useState<InviteGuest | null>(null)
 
 const [loading, setLoading] = useState(false)
@@ -139,6 +145,7 @@ const lookupInvitation = async (
 
       if (data.code === 'GUEST_NOT_FOUND') {
         setIsNewGuest(true)
+        setWorkshopRsvp(null)
         setServerError('')
         return
       }
@@ -153,6 +160,7 @@ const lookupInvitation = async (
 
     setIsNewGuest(false)
     setGuest(data.guest)
+    setWorkshopRsvp(data.guest.workshopRsvp ?? null)
 
   } catch (error) {
     console.error(error)
@@ -265,6 +273,7 @@ if (
         email: cleanEmail,
         specialty,
         invitedBy,
+        workshopRsvp,
       }),
     })
 
@@ -288,6 +297,7 @@ if (
       qrToken: data.guest.qrToken,
     })
 
+    setWorkshopRsvp(data.guest.workshopRsvp ?? null)
     setIsNewGuest(false)
     setSubmitted(true)
 
@@ -330,6 +340,7 @@ const confirmAttendance = async (
       },
       body: JSON.stringify({
         phone: guest.phone,
+        workshopRsvp,
       }),
     })
 
@@ -366,6 +377,7 @@ setGuest({
   qrToken: data.guest.qrToken,
 })
 
+    setWorkshopRsvp(data.guest.workshopRsvp ?? null)
     setSubmitted(true)
 
     window.setTimeout(() => {
@@ -390,6 +402,7 @@ setGuest({
 
 const resetInvitation = () => {
   setGuest(null)
+  setWorkshopRsvp(null)
   setSubmitted(false)
 
   setPhone('')
@@ -415,14 +428,6 @@ const resetInvitation = () => {
   })
 }
 
-const getCheckInUrl = (qrToken: string) => {
-  return `${window.location.origin}/check-in?token=${encodeURIComponent(qrToken)}`
-}
-
-
-
-
-
 return (
       <section className="rsvp-section ly-registration" id="rsvp">
         <div className="shell rsvp-grid">
@@ -445,6 +450,16 @@ return (
 
   <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
 </a>
+            {(isNewGuest || guest) && (
+              <WorkshopChoice
+                key={guest?.qrToken ?? phone}
+                qrToken={guest?.rsvpStatus === 'confirmed' ? guest.qrToken : null}
+                guestName={guest?.fullName}
+                disabled={loading}
+                value={workshopRsvp}
+                onChange={setWorkshopRsvp}
+              />
+            )}
           </div>
 
           <div className="rsvp-card">
@@ -1008,29 +1023,7 @@ return (
                     </div>
                   )}
                   
-                  {guest.qrToken && (
-
-                <div className="mt-8 flex flex-col items-center">
-
-                  <div className="rounded-2xl bg-white p-4 shadow-md">
-                    <QRCodeSVG
-                      value={getCheckInUrl(guest.qrToken)}
-                      size={190}
-                      level="H"
-                      includeMargin
-                    />
-                  </div>
-
-                  <p className="mt-4 text-sm font-semibold text-neutral-800">
-                    YOUR EVENT QR CODE
-                  </p>
-
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Keep this QR code ready for event check-in.
-                  </p>
-
-                </div>
-              )}
+                  {guest.qrToken && <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={guest} />}
                   <button
                     type="button"
                     onClick={resetInvitation}
@@ -1187,28 +1180,7 @@ return (
                   </div>
                 )}
 
-                {guest?.qrToken && (
-  <div className="mt-8 flex flex-col items-center">
-
-                  <div className="rounded-2xl bg-white p-4 shadow-md">
-                    <QRCodeSVG
-                      value={getCheckInUrl(guest.qrToken)}
-                      size={190}
-                      level="H"
-                      includeMargin
-                    />
-                  </div>
-
-                  <p className="mt-4 text-sm font-semibold text-neutral-800">
-                    YOUR EVENT QR CODE
-                  </p>
-
-                  <p className="mt-1 max-w-xs text-center text-xs leading-relaxed text-neutral-500">
-                    Keep this QR code ready for check-in at the event.
-                  </p>
-
-                </div>
-              )}
+                {guest?.qrToken && <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={{ checkedIn: false }} />}
 
               </div>
 

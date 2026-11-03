@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import RegistrationSection from './RegistrationSection'
+import ProductsSection from './ProductsSection'
 import {
   ArrowUpRight,
   CalendarDays,
@@ -112,7 +113,7 @@ function WellnessIcons() {
 
 const LibyaGlobe = lazy(() => import('./LibyaGlobe'))
 
-const EVENT_START = Date.parse('2026-11-14T15:00:00+02:00')
+const EVENT_START = Date.parse('2026-11-14T16:00:00+02:00')
 const countries = ['Egypt', 'Saudi Arabia', 'United Arab Emirates', 'Sudan', 'Libya']
 
 
@@ -141,7 +142,7 @@ export default function LibyaHome() {
       <a href="#beginning" aria-label="Limitless Naturals home" onClick={closeMenu}><img className="ly-logo" src="/assets/limitless_white.png" alt="Limitless Naturals" width="176" height="70" /></a>
       <button className="ly-menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="ly-navigation" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
       <nav id="ly-navigation" aria-label="Main navigation" className={menuOpen ? 'ly-navigation ly-navigation-open' : 'ly-navigation'}>
-        <a href="#who-we-are" onClick={closeMenu}>Who We Are</a><a href="#growing" onClick={closeMenu}>Growing Across Borders</a><a href="#event" onClick={closeMenu}>Event Details</a><a className="ly-nav-cta" href="#rsvp" onClick={closeMenu}>Register Right Now <ArrowUpRight size={16} /></a>
+        <a href="#who-we-are" onClick={closeMenu}>Who We Are</a><a href="#growing" onClick={closeMenu}>Growing Across Borders</a><a href="#our-products" onClick={closeMenu}>Our Products</a><a href="#event" onClick={closeMenu}>Event Details</a><a className="ly-nav-cta" href="#rsvp" onClick={closeMenu}>Register Right Now <ArrowUpRight size={16} /></a>
       </nav>
     </header>
     <main id="ly-main">
@@ -265,6 +266,7 @@ export default function LibyaHome() {
           <div><MapPin aria-hidden="true" /><span>Venue</span><strong>Lancaster, Burj Al-Hayat Hotel, Tripoli, Libya</strong></div>
         </div><p className="ly-welcome">We look forward to welcoming you.</p>
       </section>
+  <ProductsSection />
   <RegistrationSection />
     </main>
     <footer className="ly-footer"><a href="#beginning" aria-label="Back to Limitless Naturals home"><img className="ly-logo" src="/assets/limitless_white.png" alt="Limitless Naturals" width="176" height="70" loading="lazy" /></a><p>Limitless Naturals Launch in Libya</p><span>14 November 2026 · Tripoli, Libya</span></footer>

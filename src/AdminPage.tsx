@@ -1,3 +1,4 @@
+import { AttendanceProvider, AttendanceBadge, AttendanceOverview, useAttendance } from "./AttendanceControls";
 import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import {
@@ -71,12 +72,23 @@ type AdminGuest = {
   seatNumber: number | null;
   checkedIn: boolean;
   checkedInAt: string | null;
+  workshopRsvp: "yes" | "no" | null;
+  workshopCheckedIn: boolean;
+  workshopCheckedInAt: string | null;
   createdAt: string;
 };
 
 export default function AdminPage() {
+  return <AttendanceProvider><AdminPageContent /></AttendanceProvider>;
+}
+
+function AdminPageContent() {
+  const attendance = useAttendance();
   const [authLoading, setAuthLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
+  useEffect(() => {
+    if (authenticated) void attendance.refresh();
+  }, [authenticated, attendance.refresh]);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -392,11 +404,11 @@ export default function AdminPage() {
   };
 
   const checkInGuest = async (guest: AdminGuest) => {
-    if (guest.checkedIn) {
-      return;
-    }
-
-    const confirmed = window.confirm(`Check in ${guest.fullName}?`);
+    const activity = attendance.activity;
+    if (!activity || (activity === "workshop" ? guest.workshopCheckedIn : guest.checkedIn)) return;
+    const confirmed = window.confirm(activity === "workshop"
+      ? `Check in ${guest.fullName} to the AI Video Creation workshop? No seat will be assigned.`
+      : `Check in ${guest.fullName} to the event?`);
 
     if (!confirmed) {
       return;
@@ -414,10 +426,12 @@ export default function AdminPage() {
         credentials: "include",
         body: JSON.stringify({
           guestId: guest.id,
+          activity,
         }),
       });
 
       const data = await response.json();
+      await attendance.refresh();
 
       if (response.status === 401) {
         setAuthenticated(false);
@@ -537,7 +551,10 @@ export default function AdminPage() {
 
         Seat: guest.seatNumber ?? "",
 
-        "Checked In": guest.checkedIn ? "Yes" : "No",
+        "Workshop RSVP": guest.workshopRsvp ?? "Not Answered",
+        "Workshop Checked In": guest.workshopCheckedIn ? "Yes" : "No",
+        "Workshop Checked In At": guest.workshopCheckedInAt || "",
+        "Event Checked In": guest.checkedIn ? "Yes" : "No",
 
         "Checked In At": guest.checkedInAt || "",
 
@@ -811,55 +828,64 @@ export default function AdminPage() {
         />
       )}
 
-      <header className="border-b border-[#35435d] bg-[#192039]">
-        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3 px-5 py-5 lg:px-8">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.2em] text-[#bce6dc]">
-              Limitless Libya Event Management
-            </p>
-
-            <h1 className="mt-1 text-2xl font-semibold text-[#f4f7fa]">
-              Event Dashboard
-            </h1>
+      <header className="attendance-header">
+        <div className="attendance-header__inner">
+          <div className="attendance-header__brand">
+            <p>Limitless Naturals · Libya</p>
+            <h1>Event Dashboard</h1>
           </div>
-          <button
-            type="button"
-            onClick={() => setScannerOpen(true)}
-            className="rounded-xl bg-[#bce6dc] px-5 py-3 font-semibold text-[#101225]"
-          >
-            SCAN QR
-          </button>
-
-          <button
-            type="button"
-            onClick={exportGuestsToExcel}
-            disabled={exporting}
-            className="
-              rounded-xl
-              bg-green-600
-              px-5 py-3
-              text-sm
-              font-semibold
-              text-white
-              transition
-              hover:bg-green-700
-              disabled:opacity-50
-            "
-          >
-            {exporting ? "EXPORTING..." : "EXPORT EXCEL"}
-          </button>
-          <button
-            onClick={logout}
-            className="flex items-center gap-2 rounded-xl border border-[#35435d] px-4 py-2.5 text-sm font-medium text-[#f4f7fa] transition hover:bg-[#202942]"
-          >
-            <LogOut size={17} />
-            Logout
-          </button>
+          <div className="attendance-header__actions">
+            <div className="attendance-header__scan">
+              <AttendanceBadge />
+              <button type="button" className="attendance-header__primary" onClick={() => setScannerOpen(true)}>Scan QR</button>
+            </div>
+            <button type="button" className="attendance-header__secondary" onClick={exportGuestsToExcel} disabled={exporting}>
+              {exporting ? "Exporting..." : "Export Excel"}
+            </button>
+            <button type="button" className="attendance-header__secondary" onClick={logout}>
+              <LogOut size={16} /> Log out
+            </button>
+          </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-[1500px] px-5 py-8 lg:px-8">
-        <nav className="mb-6 flex gap-2" aria-label="Dashboard sections">
+
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <StatCard
+            title="Total Registered"
+            value={stats?.totalRegistered ?? 0}
+            icon={<Users size={22} />}
+          />
+
+          <StatCard
+            title="Confirmed"
+            value={stats?.confirmed ?? 0}
+            icon={<CheckCircle2 size={22} />}
+          />
+
+          <StatCard
+            title="Event Checked In"
+            value={stats?.checkedIn ?? 0}
+            icon={<UserCheck size={22} />}
+          />
+
+          <StatCard
+            title="VIP"
+            value={stats?.vip ?? 0}
+            icon={<Crown size={22} />}
+          />
+
+          <StatCard
+            title="Event Not Checked In"
+            value={stats?.notCheckedIn ?? 0}
+            icon={<Clock3 size={22} />}
+          />
+        </div>
+
+        <AttendanceOverview />
+        <nav className="mt-6 flex gap-2" aria-label="Dashboard sections">
           {(["guests", "tables"] as const).map((tab) => (
             <button
               key={tab}
@@ -876,38 +902,6 @@ export default function AdminPage() {
             </button>
           ))}
         </nav>
-
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          <StatCard
-            title="Total Registered"
-            value={stats?.totalRegistered ?? 0}
-            icon={<Users size={22} />}
-          />
-
-          <StatCard
-            title="Confirmed"
-            value={stats?.confirmed ?? 0}
-            icon={<CheckCircle2 size={22} />}
-          />
-
-          <StatCard
-            title="Checked In"
-            value={stats?.checkedIn ?? 0}
-            icon={<UserCheck size={22} />}
-          />
-
-          <StatCard
-            title="VIP"
-            value={stats?.vip ?? 0}
-            icon={<Crown size={22} />}
-          />
-
-          <StatCard
-            title="Not Checked In"
-            value={stats?.notCheckedIn ?? 0}
-            icon={<Clock3 size={22} />}
-          />
-        </div>
 
         <div
           className={`mt-8 rounded-3xl border border-[#35435d] bg-[#192039] shadow-sm ${
@@ -1156,24 +1150,13 @@ export default function AdminPage() {
                         </button>
                       </td>
 
-                      {/* CHECK-IN STATUS */}
-                      <td className="px-6 py-4">
-                        {guest.checkedIn ? (
-                          <div>
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#173c35] px-3 py-1 text-xs font-semibold text-[#a5e5ce]">
-                              <CheckCircle2 size={14} />
-                              Checked in
-                            </span>
-
-                            <span className="mt-2 block text-[11px] text-[#aab8c7]">
-                              {formatCheckInTime(guest.checkedInAt)}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="rounded-full bg-[#bce6dc]/10 px-3 py-1 text-xs font-semibold text-[#bce6dc]">
-                            Waiting
-                          </span>
-                        )}
+                      {/* RSVP and attendance are independent. */}
+                      <td className="px-4 py-4 text-xs">
+                        <p>Workshop RSVP: <strong>{guest.workshopRsvp === "yes" ? "Yes" : guest.workshopRsvp === "no" ? "No" : "Not Answered"}</strong></p>
+                        <p className="mt-2">Workshop: {guest.workshopCheckedIn ? "Checked in" : "Waiting"}</p>
+                        {guest.workshopCheckedInAt && <p className="text-[#aab8c7]">{formatCheckInTime(guest.workshopCheckedInAt)}</p>}
+                        <p className="mt-2">Event: {guest.checkedIn ? "Checked in" : "Waiting"}</p>
+                        {guest.checkedInAt && <p className="text-[#aab8c7]">{formatCheckInTime(guest.checkedInAt)}</p>}
                       </td>
 
                       {/* ACTION */}
@@ -1227,53 +1210,18 @@ export default function AdminPage() {
                                 : "MAKE VIP"}
                           </button>
 
-                          {/* CHECK IN */}
-                          {!guest.checkedIn ? (
-                            <button
-                              type="button"
-                              disabled={
-                                checkingInId === guest.id ||
-                                guest.rsvpStatus !== "confirmed"
-                              }
-                              onClick={() => checkInGuest(guest)}
-                              className="
-          min-w-[90px]
-          whitespace-nowrap
-          rounded-xl
-          bg-[#bce6dc]
-          px-3 py-2
-          text-xs
-          font-semibold
-          text-[#101225]
-          transition
-          hover:bg-[#d6f4ed]
-          disabled:cursor-not-allowed
-          disabled:opacity-40
-        "
-                            >
-                              {checkingInId === guest.id
-                                ? "CHECKING..."
-                                : "CHECK IN"}
-                            </button>
-                          ) : (
-                            <span
-                              className="
-          inline-flex
-          min-w-[105px]
-          items-center
-          justify-center
-          whitespace-nowrap
-          rounded-xl
-          bg-[#17342e]
-          px-3 py-2
-          text-xs
-          font-semibold
-          text-[#a5e5ce]
-        "
-                            >
-                              ✓ CHECKED IN
-                            </span>
-                          )}
+                          {/* Current activity uses its own attendance flag. */}
+                          <button
+                            type="button"
+                            disabled={!attendance.activity || checkingInId === guest.id || guest.rsvpStatus !== "confirmed" ||
+                              (attendance.activity === "workshop" ? guest.workshopCheckedIn : guest.checkedIn)}
+                            onClick={() => void checkInGuest(guest)}
+                            className="rounded-xl bg-[#bce6dc] px-3 py-2 text-xs font-semibold text-[#101225] disabled:opacity-40"
+                          >
+                            {checkingInId === guest.id ? "CHECKING..." : !attendance.activity ? "CLOSED"
+                              : (attendance.activity === "workshop" ? guest.workshopCheckedIn : guest.checkedIn) ? "CHECKED IN"
+                              : attendance.activity === "workshop" ? "WORKSHOP CHECK IN" : "EVENT CHECK IN"}
+                          </button>
 
                           {/* DELETE */}
                           <button
@@ -1780,6 +1728,11 @@ export default function AdminPage() {
                   }
                 />
 
+                <GuestInfoItem
+                  label="Workshop RSVP"
+                  value={selectedGuestInfo.workshopRsvp === "yes" ? "Yes" : selectedGuestInfo.workshopRsvp === "no" ? "No" : "Not Answered"}
+                />
+                <GuestInfoItem label="Workshop Check-in" value={selectedGuestInfo.workshopCheckedIn ? "Checked in" : "Waiting"} />
                 <GuestInfoItem
                   label="Mobile"
                   value={selectedGuestInfo.phone || "—"}

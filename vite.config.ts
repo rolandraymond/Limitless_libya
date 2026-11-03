@@ -9,8 +9,12 @@ export default defineConfig({
   ],
 
   server: {
+      allowedHosts: [
+    'interested-logged-mixer-clearly.trycloudflare.com',
+  ],
     proxy: {
       '/api': {
+        ws: true,
         target: 'http://localhost:8787',
         changeOrigin: true,
       },

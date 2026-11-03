@@ -1,3 +1,6 @@
+import GuestEntryCard from './GuestEntryCard'
+import { rememberProductPass } from './ProductsSection'
+import WorkshopChoice from './WorkshopChoice'
 import { useEffect, useState } from 'react'
 import {
   CalendarDays,
@@ -6,13 +9,17 @@ import {
   LoaderCircle,
   MapPin,
 } from 'lucide-react'
-import { QRCodeSVG } from 'qrcode.react'
 
 type PassGuest = {
   fullName: string
   invitationCode: string | null
   rsvpStatus: string
   isVip: boolean
+  checkedIn: boolean
+  checkedInAt: string | null
+  tableNumber: number | null
+  seatNumber: number | null
+  workshopRsvp: 'yes' | 'no' | null
 }
 
 export default function PassPage() {
@@ -116,9 +123,6 @@ export default function PassPage() {
     )
   }
 
-  const checkInUrl =
-    `${window.location.origin}/check-in?token=${encodeURIComponent(token)}`
-
   return (
     <main className={pageClass}>
       <div className="w-full max-w-md">
@@ -188,30 +192,12 @@ export default function PassPage() {
               </strong>
             </div>
 
-            <div className="mt-7 flex justify-center">
-              <div className="w-full max-w-[258px] rounded-2xl bg-white! p-4 shadow-sm">
-                <QRCodeSVG
-                  value={checkInUrl}
-                  size={226}
-                  level="H"
-                  includeMargin
-                  bgColor="#ffffff"
-                  fgColor="#000000"
-                  title="Your event entry QR code"
-                  className="block h-auto w-full"
-                />
-              </div>
-            </div>
+            <WorkshopChoice guestName={guest.fullName} qrToken={token} value={guest.workshopRsvp ?? null}
+              onChange={answer => setGuest(current => current ? { ...current, workshopRsvp: answer } : current)} />
 
-            <p className="mt-5 text-xs font-semibold tracking-[0.12em] text-[#bce6dc]">
-              YOUR EVENT QR CODE
-            </p>
-
-            <p className="mt-3 text-xs leading-6 text-[#aab8c7]">
-              Present this QR code at the event entrance.
-              <br />
-              Keep your invitation link private.
-            </p>
+            <GuestEntryCard key={token} token={token} initialState={guest} />
+            <a href="/#our-products" onClick={rememberProductPass} className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-[#bce6dc]/40 px-6 text-sm font-semibold text-[#bce6dc] hover:bg-[#bce6dc]/10">Explore Our Products</a>
+            <p className="mt-3 text-xs leading-6 text-[#aab8c7]">Keep your invitation link private.</p>
           </div>
 
          <div className="border-t border-white/15 bg-[#11182b]/40 px-5 py-5 text-center">

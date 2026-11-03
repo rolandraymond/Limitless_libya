@@ -1,0 +1,27 @@
+.guest-entry-card.guest-entry-card { margin: 28px auto 0; width: 100%; max-width: 360px; color: #f4f7fa; text-align: center; }
+.guest-entry-card.guest-entry-card p { margin: 0; max-width: none; color: #b9cada; font-family: inherit; font-size: 12px; line-height: 1.7; }
+.guest-entry-card__stage { display: grid; place-items: center; min-height: 310px; }
+.guest-entry-card__qr-state { width: 100%; }
+.guest-entry-card__qr { display: inline-block; max-width: 100%; padding: 16px; background: #fff; border: 1px solid #fff; border-radius: 18px; box-shadow: 0 12px 36px #0002; }
+.guest-entry-card__qr svg { display: block; width: 210px; height: auto; max-width: 100%; }
+.guest-entry-card.guest-entry-card .guest-entry-card__label { margin-top: 17px; color: #bce6dc; font-size: 10px; font-weight: 700; letter-spacing: .16em; }
+.guest-entry-card.guest-entry-card .guest-entry-card__hint { margin-top: 10px; font-size: 12px; color: #c1d0df; }
+.guest-entry-card__animation { width: 100%; animation: pass-arrive .35s ease-out both; }
+.guest-entry-card__infinity { width: min(100%, 260px); height: auto; margin: 0 auto 15px; overflow: visible; }
+.guest-entry-card__track, .guest-entry-card__light { fill: none; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; }
+.guest-entry-card__track { stroke: #bce6dc25; }
+.guest-entry-card__light { stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 7px #8dd8e9); animation: pass-infinity-draw 1.6s cubic-bezier(.35,0,.2,1) forwards; }
+.guest-entry-card.guest-entry-card .guest-entry-card__welcome { color: #f4f7fa; font-size: 21px; font-weight: 600; }
+.guest-entry-card__seat { width: 100%; padding: 26px 16px; border-radius: 22px; border: 1px solid #678d91; background: linear-gradient(145deg, #1b3545, #18223c); animation: pass-seat-reveal .5s ease-out both; }
+.guest-entry-card__confirmed { display: block; color: #bce6dc; font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+.guest-entry-card__numbers { display: grid; grid-template-columns: 1fr 1fr; margin: 25px 0 22px; }
+.guest-entry-card__numbers > div + div { border-left: 1px solid #7796a166; }
+.guest-entry-card__numbers span { display: block; color: #bed1e3; font-size: 11px; letter-spacing: .2em; }
+.guest-entry-card__numbers strong { display: block; margin-top: 9px; color: #f4f7fa; font-size: clamp(38px, 10vw, 54px); line-height: 1.1; font-weight: 600; font-variant-numeric: tabular-nums; }
+.guest-entry-card__connection { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 16px; color: #c1d0df; font-size: 11px; }
+.guest-entry-card .guest-entry-card__connection button { padding: 5px 9px; border: 1px solid #718a9d; border-radius: 7px; background: transparent; color: #e0f1f3; font-size: 11px; cursor: pointer; }
+.guest-entry-card .guest-entry-card__connection button:focus-visible { outline: 2px solid #bce6dc; outline-offset: 3px; }
+@keyframes pass-infinity-draw { 0% { stroke-dashoffset: 1; opacity: .2; } 65% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; filter: drop-shadow(0 0 15px #bce6dc); } }
+@keyframes pass-arrive { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes pass-seat-reveal { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .guest-entry-card__animation, .guest-entry-card__light, .guest-entry-card__seat { animation: none; } .guest-entry-card__light { stroke-dashoffset: 0; } }

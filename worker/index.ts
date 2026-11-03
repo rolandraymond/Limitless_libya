@@ -1,6 +1,9 @@
+export { GuestPassRoom } from './guest-pass-room'
+import { connectGuestPass, eventCheckInWithLivePass, publishGuestPass } from './live-pass'
+import { checkInGuest, checkInAvailability, attendanceClock } from './attendance'
+import { attendanceSummary, saveWorkshopRsvp } from './workshop'
 import { sendConfirmationEmail } from './email'
 import {
-  assignGuestToTable,
   autoAssignTables,
   getTablesOverview,
   setTableType,
@@ -11,6 +14,8 @@ const REGISTRATION_OPEN = true
 
 
 interface Env {
+  GUEST_PASS_ROOMS?: DurableObjectNamespace
+  ATTENDANCE_TEST_NOW?: string
   DB: D1Database
 
   ADMIN_USERNAME: string
@@ -22,6 +27,7 @@ interface Env {
 }
 
 interface RSVPBody {
+  workshopRsvp?: 'yes' | 'no' | null
     name?: string
   firstName?: string
   lastName?: string
@@ -150,6 +156,14 @@ export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
 
+    if (request.method === 'GET' && url.pathname === '/api/pass/live') {
+      try { return await connectGuestPass(request, env) }
+      catch (error) {
+        console.error('LIVE PASS CONNECTION ERROR:', error)
+        return Response.json({ success: false, error: 'Unable to connect live invitation.' }, { status: 503 })
+      }
+    }
+
     // =========================================================
     // HEALTH
     // =========================================================
@@ -161,6 +175,33 @@ export default {
       return Response.json({
         success: true,
         message: 'limitless-libya-event API is running',
+      })
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/admin/attendance-summary') {
+      if (!(await isAdminAuthenticated(request, env))) {
+        return Response.json({ success: false, error: 'Unauthorized.' }, { status: 401 })
+      }
+      try { return await attendanceSummary(request, env) }
+      catch (error) {
+        console.error('ATTENDANCE SUMMARY ERROR:', error)
+        return Response.json({ success: false, error: 'Unable to load attendance summary.' }, { status: 500 })
+      }
+    }
+    if (request.method === 'POST' && url.pathname === '/api/invite/workshop') {
+      try { return await saveWorkshopRsvp(request, env) }
+      catch (error) {
+        console.error('WORKSHOP RSVP ERROR:', error)
+        return Response.json({ success: false, error: 'Unable to save workshop response.' }, { status: 500 })
+      }
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/admin/check-in/availability') {
+      if (!(await isAdminAuthenticated(request, env))) {
+        return Response.json({ success: false, error: 'Unauthorized.' }, { status: 401 })
+      }
+      return Response.json({ success: true, ...checkInAvailability(attendanceClock(request, env).now) }, {
+        headers: { 'Cache-Control': 'no-store' },
       })
     }
 
@@ -203,7 +244,11 @@ if (!phone) {
             qr_token,
             is_vip,
             table_number,
-            seat_number
+            seat_number,
+            checked_in,
+            workshop_rsvp,
+            workshop_checked_in,
+            workshop_checked_in_at
           FROM guests
           WHERE phone = ?
           LIMIT 1
@@ -222,6 +267,10 @@ if (!phone) {
             is_vip: number
             table_number: number | null
             seat_number: number | null
+            checked_in: number
+            workshop_rsvp: string | null
+            workshop_checked_in: number
+            workshop_checked_in_at: string | null
           }>()
 
         if (!guest) {
@@ -252,10 +301,14 @@ if (!phone) {
             rsvpStatus: guest.rsvp_status,
             qrToken: guest.qr_token,
             isVip: Boolean(guest.is_vip),
-            tableNumber: guest.table_number,
-            seatNumber: guest.seat_number,
+            tableNumber: guest.checked_in ? guest.table_number : null,
+            seatNumber: guest.checked_in ? guest.seat_number : null,
+            checkedIn: Boolean(guest.checked_in),
+            workshopRsvp: guest.workshop_rsvp,
+            workshopCheckedIn: Boolean(guest.workshop_checked_in),
+            workshopCheckedInAt: guest.workshop_checked_in_at,
           },
-        })
+        }, { headers: { 'Cache-Control': 'no-store' } })
       } catch (error) {
         console.error('LOOKUP ERROR:', error)
 
@@ -280,6 +333,10 @@ if (!phone) {
       try {
         const body = await request.json<RSVPBody>()
 
+        if (body.workshopRsvp !== undefined && body.workshopRsvp !== null &&
+            body.workshopRsvp !== 'yes' && body.workshopRsvp !== 'no') {
+          return Response.json({ success: false, error: 'Please choose Yes or No for the workshop.' }, { status: 400 })
+        }
         const phone = body.phone
           ? normalizeLibyanPhone(body.phone)
           : null
@@ -312,7 +369,11 @@ if (!phone) {
             qr_token,
             is_vip,
             table_number,
-            seat_number
+            seat_number,
+            checked_in,
+            workshop_rsvp,
+            workshop_checked_in,
+            workshop_checked_in_at
           FROM guests
           WHERE phone = ?
           LIMIT 1
@@ -331,6 +392,10 @@ if (!phone) {
             is_vip: number
             table_number: number | null
             seat_number: number | null
+            checked_in: number
+            workshop_rsvp: string | null
+            workshop_checked_in: number
+            workshop_checked_in_at: string | null
           }>()
 
         // =====================================================
@@ -383,55 +448,22 @@ if (!phone) {
               invitation_code = ?,
               rsvp_status = 'confirmed',
               qr_token = ?,
+              workshop_rsvp = COALESCE(?, workshop_rsvp),
               updated_at = CURRENT_TIMESTAMP
             WHERE id = ?
           `)
             .bind(
               invitationCode,
               qrToken,
+              body.workshopRsvp ?? null,
               existingGuest.id
             )
             .run()
 
 
-let tableNumber =
-  existingGuest.table_number
-
-let seatNumber =
-  existingGuest.seat_number
-
-if (
-  tableNumber === null ||
-  seatNumber === null
-) {
-  try {
-    const seatAssignment =
-      await assignGuestToTable(
-        env,
-        existingGuest.id
-      )
-
-    if (seatAssignment.success) {
-      tableNumber =
-        seatAssignment.tableNumber
-
-      seatNumber =
-        seatAssignment.seatNumber
-    } else {
-      console.warn(
-        `AUTO SEAT FAILED: Guest ${existingGuest.id}`,
-        seatAssignment.code,
-        seatAssignment.error
-      )
-    }
-  } catch (error) {
-    console.error(
-      'AUTO SEAT ERROR:',
-      error
-    )
-  }
-}
-
+// Registration confirms the invitation only. Seats are assigned at event check-in.
+const tableNumber: number | null = null
+const seatNumber: number | null = null
 
             let emailStatus = 'skipped'
 
@@ -485,6 +517,7 @@ if (
               invitationCode,
               qrToken,
               rsvpStatus: 'confirmed',
+              workshopRsvp: body.workshopRsvp ?? existingGuest.workshop_rsvp,
               isVip: Boolean(existingGuest.is_vip),
               tableNumber,
               seatNumber,
@@ -636,10 +669,11 @@ const result = await env.DB.prepare(`
     email,
     specialty,
     invited_by,
+    workshop_rsvp,
     rsvp_status,
     qr_token
   )
-  VALUES (?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?)
 `)
   .bind(
     firstName,
@@ -649,6 +683,7 @@ const result = await env.DB.prepare(`
     email,
     specialty,
     invitedBy,
+    body.workshopRsvp ?? null,
     qrToken
   )
   .run()
@@ -673,39 +708,8 @@ const result = await env.DB.prepare(`
           )
           .run()
 
-          let tableNumber: number | null = null
-          let seatNumber: number | null = null
-
-          try {
-            const seatAssignment =
-              await assignGuestToTable(
-                env,
-                id
-              )
-
-            if (seatAssignment.success) {
-              tableNumber =
-                seatAssignment.tableNumber
-
-              seatNumber =
-                seatAssignment.seatNumber
-
-              console.log(
-                `AUTO SEAT SUCCESS: Guest ${id} -> Table ${tableNumber}, Seat ${seatNumber}`
-              )
-            } else {
-              console.warn(
-                `AUTO SEAT FAILED: Guest ${id}`,
-                seatAssignment.code,
-                seatAssignment.error
-              )
-            }
-          } catch (error) {
-            console.error(
-              'AUTO SEAT ERROR:',
-              error
-            )
-}
+          const tableNumber: number | null = null
+          const seatNumber: number | null = null
 
           let emailStatus = 'failed'
 
@@ -761,6 +765,7 @@ const result = await env.DB.prepare(`
             invitationCode,
             qrToken,
             rsvpStatus: 'confirmed',
+            workshopRsvp: body.workshopRsvp ?? null,
             isVip: false,
             tableNumber,
             seatNumber,
@@ -819,7 +824,10 @@ if (
         table_number,
         seat_number,
         checked_in,
-        checked_in_at
+        checked_in_at,
+        workshop_rsvp,
+        workshop_checked_in,
+        workshop_checked_in_at
       FROM guests
       WHERE qr_token = ?
       LIMIT 1
@@ -841,6 +849,9 @@ if (
         seat_number: number | null
         checked_in: number
         checked_in_at: string | null
+        workshop_rsvp: string | null
+        workshop_checked_in: number
+        workshop_checked_in_at: string | null
       }>()
 
     if (!guest) {
@@ -854,6 +865,7 @@ if (
       )
     }
 
+    const showSeat = Boolean(guest.checked_in) || await isAdminAuthenticated(request, env)
     return Response.json({
       success: true,
       guest: {
@@ -865,12 +877,15 @@ if (
         invitationCode: guest.invitation_code,
         rsvpStatus: guest.rsvp_status,
         isVip: Boolean(guest.is_vip),
-        tableNumber: guest.table_number,
-        seatNumber: guest.seat_number,
+        tableNumber: showSeat ? guest.table_number : null,
+        seatNumber: showSeat ? guest.seat_number : null,
         checkedIn: Boolean(guest.checked_in),
         checkedInAt: guest.checked_in_at,
+        workshopRsvp: guest.workshop_rsvp,
+        workshopCheckedIn: Boolean(guest.workshop_checked_in),
+        workshopCheckedInAt: guest.workshop_checked_in_at,
       },
-    })
+    }, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
     console.error('CHECK-IN LOOKUP ERROR:', error)
 
@@ -1142,6 +1157,9 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           seat_number,
           checked_in,
           checked_in_at,
+          workshop_rsvp,
+          workshop_checked_in,
+          workshop_checked_in_at,
           created_at
         FROM guests
         WHERE specialty = ?
@@ -1185,6 +1203,9 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           seat_number,
           checked_in,
           checked_in_at,
+          workshop_rsvp,
+          workshop_checked_in,
+          workshop_checked_in_at,
           created_at
         FROM guests
         WHERE
@@ -1223,6 +1244,9 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           seat_number,
           checked_in,
           checked_in_at,
+          workshop_rsvp,
+          workshop_checked_in,
+          workshop_checked_in_at,
           created_at
         FROM guests
         WHERE specialty = ?
@@ -1250,6 +1274,9 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
           seat_number,
           checked_in,
           checked_in_at,
+          workshop_rsvp,
+          workshop_checked_in,
+          workshop_checked_in_at,
           created_at
         FROM guests
         ORDER BY ${orderBy}
@@ -1295,6 +1322,9 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
         seatNumber: guest.seat_number,
         checkedIn: Boolean(guest.checked_in),
         checkedInAt: guest.checked_in_at,
+        workshopRsvp: guest.workshop_rsvp,
+        workshopCheckedIn: Boolean(guest.workshop_checked_in),
+        workshopCheckedInAt: guest.workshop_checked_in_at,
         createdAt: guest.created_at,
       })),
     })
@@ -1320,292 +1350,38 @@ const orderBy = sortOrders.get(sort) ?? sortOrders.get('default')!
 // ADMIN CHECK-IN GUEST
 // =========================================================
 
-if (
-  request.method === 'POST' &&
-  url.pathname === '/api/admin/check-in'
-) {
-  const authenticated =
-    await isAdminAuthenticated(request, env)
-
-  if (!authenticated) {
-    return Response.json(
-      {
-        success: false,
-        error: 'Unauthorized.',
-      },
-      { status: 401 }
-    )
+if (request.method === 'POST' && url.pathname === '/api/admin/check-in') {
+  if (!(await isAdminAuthenticated(request, env))) {
+    return Response.json({ success: false, error: 'Unauthorized.' }, { status: 401 })
   }
-
+  let body: { guestId?: number; activity?: unknown }
   try {
-    const body = await request.json<{
-      guestId?: number
-    }>()
-
-    const guestId = Number(body.guestId)
-
-    if (
-      !Number.isInteger(guestId) ||
-      guestId <= 0
-    ) {
-      return Response.json(
-        {
-          success: false,
-          error: 'Invalid guest ID.',
-        },
-        { status: 400 }
-      )
+    body = await request.json<{ guestId?: number; activity?: unknown }>()
+  } catch {
+    return Response.json({ success: false, code: 'INVALID_REQUEST', error: 'Invalid JSON body.' }, { status: 400 })
+  }
+  const guestId = Number(body?.guestId)
+  // Requests without an activity retain the legacy event-only meaning.
+  const activity = body?.activity === undefined ? 'event' : body.activity
+  if (!Number.isInteger(guestId) || guestId <= 0) {
+    return Response.json({ success: false, code: 'INVALID_GUEST_ID', error: 'Invalid guest ID.' }, { status: 400 })
+  }
+  if (activity !== 'event' && activity !== 'workshop') {
+    return Response.json({ success: false, code: 'INVALID_ACTIVITY', error: 'Select workshop or event.' }, { status: 400 })
+  }
+  try {
+    const now = attendanceClock(request, env).now
+    if (activity === 'event' && (env.GUEST_PASS_ROOMS || checkInAvailability(now).eventOpen)) {
+      return await eventCheckInWithLivePass(env, guestId, now)
     }
-
-    const checkedInAt =
-      new Date().toISOString()
-
-const checkInStatement = env.DB.prepare(`
-  WITH RECURSIVE
-  target AS (
-    SELECT
-      g.*,
-      t.table_type AS current_table_type
-    FROM guests g
-    LEFT JOIN event_tables t
-      ON t.table_number = g.table_number
-    WHERE g.id = ?
-      AND g.rsvp_status = 'confirmed'
-      AND g.checked_in = 0
-  ),
-
-  seats(n) AS (
-    SELECT 1
-
-    UNION ALL
-
-    SELECT n + 1
-    FROM seats
-    WHERE n < 8
-  ),
-
-  candidates AS (
-    SELECT
-      t.table_number,
-      s.n AS seat_number,
-
-      CASE
-        WHEN (
-          g.is_vip = 1
-          OR g.current_table_type = 'vip'
-        )
-        AND t.table_number = g.table_number
-        AND s.n = g.seat_number
-        THEN 0
-        ELSE 1
-      END AS priority
-
-    FROM target g
-    CROSS JOIN event_tables t
-    JOIN seats s
-      ON s.n <= t.capacity
-
-    WHERE t.is_active = 1
-
-      AND (
-        (
-          (
-            g.is_vip = 1
-            OR g.current_table_type = 'vip'
-          )
-          AND t.table_type = 'vip'
-        )
-
-        OR
-
-        (
-          g.is_vip = 0
-          AND COALESCE(
-            g.current_table_type,
-            'regular'
-          ) <> 'vip'
-          AND t.table_type = 'regular'
-        )
-      )
-
-      AND NOT EXISTS (
-        SELECT 1
-        FROM guests occupied
-        WHERE occupied.table_number = t.table_number
-          AND occupied.seat_number = s.n
-          AND occupied.id <> g.id
-      )
-  ),
-
-  chosen AS (
-    SELECT table_number, seat_number
-    FROM candidates
-    ORDER BY
-      priority ASC,
-      table_number ASC,
-      seat_number ASC
-    LIMIT 1
-  )
-
-  UPDATE guests
-
-  SET
-    table_number = (
-      SELECT table_number FROM chosen
-    ),
-    seat_number = (
-      SELECT seat_number FROM chosen
-    ),
-    checked_in = 1,
-    checked_in_at = ?,
-    table_locked = 1,
-    updated_at = CURRENT_TIMESTAMP
-
-  WHERE id = ?
-    AND rsvp_status = 'confirmed'
-    AND checked_in = 0
-    AND EXISTS (
-      SELECT 1 FROM chosen
-    )
-
-  RETURNING
-    table_number,
-    seat_number,
-    checked_in_at
-`)
-  .bind(guestId, checkedInAt, guestId)
-
-  const releaseProvisionalSeats = env.DB.prepare(`
-  UPDATE guests
-  SET
-    table_number = NULL,
-    seat_number = NULL,
-    updated_at = CURRENT_TIMESTAMP
-
-  WHERE checked_in = 0
-    AND is_vip = 0
-    
-
-    AND NOT EXISTS (
-      SELECT 1
-      FROM event_tables t
-      WHERE t.table_number = guests.table_number
-        AND t.table_type = 'vip'
-    )
-
-    AND EXISTS (
-      SELECT 1
-      FROM guests arriving
-      LEFT JOIN event_tables t
-        ON t.table_number = arriving.table_number
-
-      WHERE arriving.id = ?
-        AND arriving.rsvp_status = 'confirmed'
-        AND arriving.checked_in = 0
-        AND arriving.is_vip = 0
-        AND COALESCE(t.table_type, 'regular') = 'regular'
-    )
-`).bind(guestId)
-
-const batchResults = await env.DB.batch([
-  releaseProvisionalSeats,
-  checkInStatement,
-])
-
-const result = batchResults[1].results[0] as
-  | {
-      table_number: number
-      seat_number: number
-      checked_in_at: string
-    }
-  | undefined
-
-
-if (result) {
-  return Response.json({
-    success: true,
-    checkedInAt: result.checked_in_at,
-    tableNumber: result.table_number,
-    seatNumber: result.seat_number,
-  })
-}
-
-    const guest = await env.DB.prepare(`
-      SELECT
-        id,
-        rsvp_status,
-        checked_in,
-        checked_in_at
-      FROM guests
-      WHERE id = ?
-      LIMIT 1
-    `)
-      .bind(guestId)
-      .first<{
-        id: number
-        rsvp_status: string
-        checked_in: number
-        checked_in_at: string | null
-      }>()
-
-    if (!guest) {
-      return Response.json(
-        {
-          success: false,
-          code: 'GUEST_NOT_FOUND',
-          error: 'Guest not found.',
-        },
-        { status: 404 }
-      )
-    }
-
-    if (guest.rsvp_status !== 'confirmed') {
-      return Response.json(
-        {
-          success: false,
-          code: 'NO_AVAILABLE_SEAT',
-          error: 'No eligible seat is currently available.',
-        },
-        { status: 409 }
-      )
-    }
-
-if (guest.checked_in) {
-  return Response.json(
-    {
-      success: false,
-      code: 'ALREADY_CHECKED_IN',
-      error: 'Guest has already checked in.',
-      checkedInAt: guest.checked_in_at,
-    },
-    { status: 409 }
-  )
-}
-
-    return Response.json(
-      {
-        success: false,
-        error: 'Unable to check in guest.',
-      },
-      { status: 500 }
-    )
-
+    return await checkInGuest(env, guestId, activity, now)
   } catch (error) {
-    console.error(
-      'ADMIN CHECK-IN ERROR:',
-      error
-    )
-
-    return Response.json(
-      {
-        success: false,
-        error: 'Something went wrong.',
-      },
-      { status: 500 }
-    )
+    console.error('ADMIN CHECK-IN ERROR:', error)
+    return Response.json({ success: false, error: 'Unable to check in guest.' }, { status: 500 })
   }
 }
-    // =========================================================
+
+// =========================================================
 // ADMIN UPDATE VIP
 // =========================================================
 
@@ -1752,14 +1528,13 @@ if (
 
     if (
       !Number.isInteger(seatNumber) ||
-      seatNumber < 1 ||
-      seatNumber > 8
+      seatNumber < 1
     ) {
       return Response.json(
         {
           success: false,
           code: 'INVALID_SEAT_NUMBER',
-          error: 'Seat number must be between 1 and 8.',
+          error: 'Seat number must be a positive integer within the table capacity.',
         },
         { status: 400 }
       )
@@ -1769,7 +1544,10 @@ if (
       SELECT
         id,
         full_name,
-        rsvp_status
+        rsvp_status,
+        is_vip,
+        checked_in,
+        (SELECT table_type FROM event_tables WHERE table_number = guests.table_number) AS current_table_type
       FROM guests
       WHERE id = ?
       LIMIT 1
@@ -1779,6 +1557,9 @@ if (
         id: number
         full_name: string
         rsvp_status: string
+        is_vip: number
+        checked_in: number
+        current_table_type: string | null
       }>()
 
     if (!guest) {
@@ -1804,10 +1585,17 @@ return Response.json(
       
     }
 
+    const isVipReservation = Boolean(guest.is_vip) || guest.current_table_type === 'vip'
+    if (!isVipReservation && !guest.checked_in) {
+      return Response.json({ success: false, code: 'EVENT_CHECK_IN_REQUIRED',
+        error: 'Regular seats are assigned only at event check-in.' }, { status: 409 })
+    }
+
     const table = await env.DB.prepare(`
       SELECT
         table_number,
         capacity,
+        table_type,
         is_active
       FROM event_tables
       WHERE table_number = ?
@@ -1817,6 +1605,7 @@ return Response.json(
       .first<{
         table_number: number
         capacity: number
+        table_type: 'regular' | 'vip'
         is_active: number
       }>()
 
@@ -1840,6 +1629,11 @@ return Response.json(
         },
         { status: 409 }
       )
+    }
+
+    if (table.table_type !== (isVipReservation ? 'vip' : 'regular')) {
+      return Response.json({ success: false, code: 'TABLE_TYPE_MISMATCH',
+        error: 'VIP reservations require VIP tables; regular guests require regular tables.' }, { status: 409 })
     }
 
     if (seatNumber > table.capacity) {
@@ -1886,14 +1680,20 @@ return Response.json(
       )
     }
 
-    await env.DB.prepare(`
+    const updatedSeat = await env.DB.prepare(`
       UPDATE guests
       SET
         table_number = ?,
         seat_number = ?,
         table_locked = 1,
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
+      WHERE id = ? AND rsvp_status = 'confirmed'
+        AND (
+          (is_vip = 1 OR EXISTS (
+            SELECT 1 FROM event_tables current_table
+            WHERE current_table.table_number = guests.table_number AND current_table.table_type = 'vip'
+          )) OR checked_in = 1
+        )
     `)
       .bind(
         tableNumber,
@@ -1901,6 +1701,14 @@ return Response.json(
         guestId
       )
       .run()
+
+    if (updatedSeat.meta.changes === 0) {
+      return Response.json({ success: false, code: 'GUEST_STATE_CHANGED',
+        error: 'Guest attendance or reservation changed. Reload the guest before assigning a seat.' }, { status: 409 })
+    }
+
+    try { await publishGuestPass(env, guestId) }
+    catch (error) { console.error('LIVE SEAT UPDATE ERROR:', error) }
 
     return Response.json({
       success: true,

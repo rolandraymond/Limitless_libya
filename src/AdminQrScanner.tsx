@@ -1,3 +1,4 @@
+import { AttendanceBadge, useAttendance } from './AttendanceControls'
 import { useEffect, useRef, useState } from 'react'
 import { BrowserQRCodeReader } from '@zxing/browser'
 
@@ -10,6 +11,8 @@ type ScanGuest = {
   seatNumber: number | null
   checkedIn: boolean
   checkedInAt: string | null
+  workshopCheckedIn: boolean
+  workshopCheckedInAt: string | null
 }
 
 type Props = {
@@ -21,6 +24,7 @@ export default function AdminQrScanner({
   onClose,
   onCompleted,
 }: Props) {
+  const attendance = useAttendance()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [guest, setGuest] = useState<ScanGuest | null>(null)
   const [token, setToken] = useState('')
@@ -28,6 +32,7 @@ export default function AdminQrScanner({
   const [busy, setBusy] = useState(false)
   const [round, setRound] = useState(0)
   const [completed, setCompleted] = useState(false)
+  const already = attendance.activity === 'workshop' ? guest?.workshopCheckedIn : guest?.checkedIn
 
   useEffect(() => {
     const video = videoRef.current
@@ -129,7 +134,11 @@ export default function AdminQrScanner({
   }, [round])
 
   const confirmCheckIn = async () => {
-    if (!guest || guest.checkedIn || busy) return
+    const activity = attendance.activity
+    if (!guest || !activity || already || busy) return
+    if (!window.confirm(activity === 'workshop'
+      ? `Check in ${guest.fullName} to the AI Video Creation workshop? No seat will be assigned.`
+      : `Check in ${guest.fullName} to the event?`)) return
 
     setBusy(true)
     setError('')
@@ -139,9 +148,10 @@ export default function AdminQrScanner({
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guestId: guest.id }),
+        body: JSON.stringify({ guestId: guest.id, activity }),
       })
       const data = await response.json()
+      await attendance.refresh()
 
       if (response.status === 401) {
         throw new Error('Admin session expired. Please log in again.')
@@ -186,19 +196,21 @@ export default function AdminQrScanner({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 p-4">
-      <section className="w-full max-w-md rounded-3xl bg-white p-6">
+      <section className="w-full max-w-md max-h-[85dvh] overflow-y-auto rounded-3xl border border-[#35435d] bg-[#192039] p-6 text-[#f4f7fa] shadow-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Scan invitation QR</h2>
           <button
             type="button"
             disabled={busy}
             onClick={onClose}
-            className="rounded-lg border px-3 py-2"
+            className="rounded-lg border border-[#52617a] bg-[#11182b] px-3 py-2 text-[#f4f7fa] hover:bg-[#25314a] disabled:opacity-50"
           >
             Close
           </button>
         </div>
 
+        <div className="mb-4"><AttendanceBadge /></div>
+        {!attendance.activity && <p className="mb-3 text-sm">Check-in is currently closed. Please wait for the next session.</p>}
         <video
           ref={videoRef}
           muted
@@ -212,7 +224,7 @@ export default function AdminQrScanner({
         {busy && <p className="mt-4">Processing...</p>}
 
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-600">
+          <p role="alert" className="mt-4 text-sm text-red-300">
             {error}
           </p>
         )}
@@ -223,27 +235,22 @@ export default function AdminQrScanner({
             <p>{guest.invitationCode}</p>
 
             <p className="font-semibold">
-              {guest.checkedIn
+              {already
                 ? completed
                   ? 'CHECK-IN SUCCESSFUL'
                   : 'ALREADY CHECKED IN'
-                : 'READY FOR CHECK-IN'}
+                : attendance.activity ? `READY FOR ${attendance.activity.toUpperCase()} CHECK-IN` : 'CHECK-IN CLOSED'}
             </p>
 
-            <p>
-              {guest.checkedIn ? 'Final seat: ' : 'Current assignment: '}
-              Table {guest.tableNumber ?? '—'} / Seat{' '}
-              {guest.seatNumber ?? '—'}
-            </p>
-
-            {!guest.checkedIn && guest.rsvpStatus === 'confirmed' && (
-              <button
-                type="button"
-                disabled={busy}
+            {attendance.activity === 'event' && guest.checkedIn && (
+              <p>Final seat: Table {guest.tableNumber ?? '—'} / Seat {guest.seatNumber ?? '—'}</p>
+            )}
+            {attendance.activity === 'workshop' && <p>Workshop attendance only. No table or seat will be assigned.</p>}
+            {!already && guest.rsvpStatus === 'confirmed' && (
+              <button type="button" disabled={busy || !attendance.activity}
                 onClick={() => void confirmCheckIn()}
-                className="w-full rounded-xl bg-green-600 px-4 py-3 font-semibold text-white disabled:opacity-50"
-              >
-                {busy ? 'PROCESSING...' : 'CHECK IN'}
+                className="w-full rounded-xl bg-green-600 px-4 py-3 font-semibold text-white disabled:opacity-50">
+                {busy ? 'PROCESSING...' : `CONFIRM ${attendance.activity?.toUpperCase() ?? ''} CHECK-IN`}
               </button>
             )}
 
@@ -257,7 +264,7 @@ export default function AdminQrScanner({
           type="button"
           disabled={busy}
           onClick={scanNext}
-          className="mt-4 w-full rounded-xl border px-4 py-3 disabled:opacity-50"
+          className="mt-4 w-full rounded-xl border border-[#52617a] bg-[#11182b] px-4 py-3 text-[#f4f7fa] hover:bg-[#25314a] disabled:opacity-50"
         >
           Scan next guest
         </button>
