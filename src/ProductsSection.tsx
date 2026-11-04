@@ -39,16 +39,103 @@ function ProductDetails({ product, onClose }: { product: Product; onClose: () =>
         <div><p className="lp-kicker">Limitless Beauty</p><h2 id="lp-detail-title">{product.name}</h2></div>
         <button type="button" autoFocus className="lp-icon" onClick={onClose} aria-label="Close product details"><X size={20} /></button>
       </header>
-      <div className="lp-detail-body">
-        <div className="lp-tags"><span>{product.form}</span>{product.flavor && <span>Flavor: {product.flavor}</span>}</div>
-        <h3>Key Features</h3><p>{product.features}</p>
-        <div className="lp-table-wrap"><table>
-          <caption>Composition</caption>
-          <thead><tr><th scope="col">Element</th><th scope="col">Amount per Serving</th></tr></thead>
-          <tbody>{product.composition.map(([element, amount]) => <tr key={element}><th scope="row">{element}</th><td>{amount}</td></tr>)}</tbody>
-        </table></div>
-       
+ <div className="lp-detail-body">
+  {product.items && (
+    <ul
+      style={{
+        margin: '20px 0',
+        paddingInlineStart: 20,
+        listStyle: 'disc',
+        color: '#c7d2df',
+        lineHeight: 1.9,
+      }}
+    >
+      {product.items.map(name => (
+        <li key={name}>{name}</li>
+      ))}
+    </ul>
+  )}
+
+  {(product.details ?? [product]).map(detail => (
+    <section
+      key={detail.id}
+      style={{
+        marginTop: 24,
+        paddingTop: 20,
+        borderTop: '1px solid #35435d',
+      }}
+    >
+      <h3 style={{ fontSize: 24, color: '#fff' }}>
+        {detail.name}
+      </h3>
+
+      {detail.image && (
+        <img
+          src={detail.image}
+          alt={detail.name}
+          width="700"
+          height="700"
+          style={{
+            display: 'block',
+            width: '100%',
+            maxWidth: 260,
+            height: 'auto',
+            margin: '20px auto',
+            borderRadius: 16,
+          }}
+        />
+      )}
+
+      <div className="lp-tags">
+        <span>{detail.form}</span>
+
+        {detail.flavor && (
+          <span>Flavor: {detail.flavor}</span>
+        )}
       </div>
+
+      {detail.composition.length > 0 && (
+        <div className="lp-table-wrap">
+          <table>
+            <caption>Composition</caption>
+
+            <thead>
+              <tr>
+                <th scope="col">Element</th>
+                <th scope="col">Amount per Serving</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {detail.composition.map(([element, amount]) => (
+                <tr key={element}>
+                  <th scope="row">{element}</th>
+                  <td>{amount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {detail.features && (
+        <>
+          <h3>Key Features</h3>
+
+          <p
+            style={{
+              color: '#c7d2df',
+              fontSize: 14,
+              lineHeight: 1.8,
+            }}
+          >
+            {detail.features}
+          </p>
+        </>
+      )}
+    </section>
+  ))}
+</div>
     </div>
   </dialog>
 }
@@ -86,13 +173,32 @@ function ProductSlide({ product, index, reducedMotion, onDetails }: {
         onClick={() => onDetails(product)}
         aria-label={`View ${product.name} details`}
       >
-        <img
-          src="/assets/products/beauty-demo.png"
-          alt="Demo artwork showing the Limitless women's wellness collection"
-          width="1920"
-          height="930"
-          loading="lazy"
-        />
+        {product.image ? (
+  <img
+    src={product.image}
+    alt={product.name}
+    width="1536"
+    height="1024"
+    loading="lazy"
+    style={{ objectFit: 'contain' }}
+  />
+) : (
+  <span
+    style={{
+      display: 'grid',
+      placeContent: 'center',
+      height: '100%',
+      color: '#bce6dc',
+      textAlign: 'center',
+      gap: 12,
+    }}
+  >
+    <strong>{product.name}</strong>
+    <span style={{ fontSize: 13 }}>
+      Product image coming soon
+    </span>
+  </span>
+)}
       </button>
 
       <div className="lp-slide-copy">
@@ -102,7 +208,24 @@ function ProductSlide({ product, index, reducedMotion, onDetails }: {
         </p>
 
         <h3>{product.name}</h3>
-        <p>{product.summary}</p>
+        {product.items ? (
+  <ul
+    style={{
+      margin: '12px 0 20px',
+      padding: 0,
+      listStyle: 'none',
+      color: '#bac5d5',
+      fontSize: 14,
+      lineHeight: 1.8,
+    }}
+  >
+    {product.items.map(name => (
+      <li key={name}>{name}</li>
+    ))}
+  </ul>
+) : (
+  <p>{product.summary}</p>
+)}
 
         <button
           type="button"
@@ -150,7 +273,7 @@ export default function ProductsSection() {
   const playing = !paused && !hovered && !focused && !details && visible && pageVisible && !reducedMotion
   useEffect(() => {
     if (!playing) return
-    const timer = window.setInterval(() => setIndex(current => (current + 1) % products.length), 3000)
+    const timer = window.setInterval(() => setIndex(current => (current + 1) % products.length), 1500)
     return () => window.clearInterval(timer)
   }, [playing, index])
 

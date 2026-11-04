@@ -36,12 +36,33 @@ export function checkInAvailability(now = Date.now()) {
 }
 
 // Local development only. Never accept a test clock from the browser or on a public host.
-export function attendanceClock(request: Request, env: { ATTENDANCE_TEST_NOW?: string }) {
+export function attendanceClock(
+  request: Request,
+  env: {
+    ATTENDANCE_TEST_NOW?: string
+    ALLOW_REMOTE_ATTENDANCE_TEST?: string
+  }
+) {
   const host = new URL(request.url).hostname
-  const local = ['localhost', '127.0.0.1', '[::1]'].includes(host)
-  const test = local && env.ATTENDANCE_TEST_NOW
-    ? Date.parse(env.ATTENDANCE_TEST_NOW) : NaN
-  return { now: Number.isFinite(test) ? test : Date.now(), testMode: Number.isFinite(test) }
+
+  const local = [
+    'localhost',
+    '127.0.0.1',
+    '[::1]',
+  ].includes(host)
+
+  const allowTest =
+    local || env.ALLOW_REMOTE_ATTENDANCE_TEST === 'true'
+
+  const test =
+    allowTest && env.ATTENDANCE_TEST_NOW
+      ? Date.parse(env.ATTENDANCE_TEST_NOW)
+      : NaN
+
+  return {
+    now: Number.isFinite(test) ? test : Date.now(),
+    testMode: Number.isFinite(test),
+  }
 }
 
 async function loadGuest(env: AttendanceEnv, guestId: number) {

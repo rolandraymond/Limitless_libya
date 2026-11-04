@@ -10,7 +10,7 @@ export default defineConfig({
 
   server: {
       allowedHosts: [
-    'interested-logged-mixer-clearly.trycloudflare.com',
+    'adaptor-phentermine-divine-ingredients.trycloudflare.com',
   ],
     proxy: {
       '/api': {

@@ -1,7 +1,7 @@
 import GuestEntryCard from './GuestEntryCard'
 import WorkshopChoice from './WorkshopChoice'
 import type { FormEvent } from 'react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { CalendarDays, Check, MapPin,ArrowUpRight } from 'lucide-react'
 import './registration-libya.css'
 function normalizeLibyanPhone(value: string): string | null {
@@ -65,6 +65,8 @@ const [submitted, setSubmitted] = useState(false)
 
 const [phone, setPhone] = useState('')
 const [workshopRsvp, setWorkshopRsvp] = useState<'yes' | 'no' | null>(null)
+const [workshopError, setWorkshopError] = useState('')
+const workshopRef = useRef<HTMLDivElement>(null)
 const [guest, setGuest] = useState<InviteGuest | null>(null)
 
 const [loading, setLoading] = useState(false)
@@ -124,6 +126,7 @@ const lookupInvitation = async (
     )
     return
   }
+
 
   setLoading(true)
 
@@ -256,6 +259,30 @@ if (
 ) {
   return
 }
+
+
+if (workshopRsvp === null) {
+  setWorkshopError(
+    'قبل إتمام التسجيل، اختار هل تبي تشارك في الورشة: نعم أو لا.'
+  )
+
+  const card = workshopRef.current
+
+  card
+    ?.querySelector<HTMLButtonElement>('button')
+    ?.focus({ preventScroll: true })
+
+  card?.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? 'auto'
+      : 'smooth',
+    block: 'center',
+  })
+
+  return
+}
+
+setWorkshopError('')
 
   setLoading(true)
   setServerError('')
@@ -417,6 +444,7 @@ const resetInvitation = () => {
 
   setPhoneError('')
   setServerError('')
+  setWorkshopError('')
 
   setRegistrationErrors({
     firstName: '',
@@ -450,16 +478,7 @@ return (
 
   <ArrowUpRight size={18} className="shrink-0" aria-hidden="true" />
 </a>
-            {(isNewGuest || guest) && (
-              <WorkshopChoice
-                key={guest?.qrToken ?? phone}
-                qrToken={guest?.rsvpStatus === 'confirmed' ? guest.qrToken : null}
-                guestName={guest?.fullName}
-                disabled={loading}
-                value={workshopRsvp}
-                onChange={setWorkshopRsvp}
-              />
-            )}
+           
           </div>
 
           <div className="rsvp-card">
@@ -1187,6 +1206,50 @@ return (
             )}
 
           </div>
+       {(isNewGuest || guest) && (
+  <div
+    ref={workshopRef}
+    style={{
+      gridColumn: '1 / -1',
+      width: '100%',
+      scrollMarginTop: 100,
+    }}
+  >
+    {workshopError && (
+      <p
+        role="alert"
+        dir="rtl"
+        style={{
+          margin: '16px 0',
+          padding: 14,
+          borderRadius: 12,
+          border: '1px solid #ffb9c5',
+          background: '#ffb9c510',
+          color: '#ffb9c5',
+          textAlign: 'right',
+        }}
+      >
+        {workshopError}
+      </p>
+    )}
+
+    <WorkshopChoice
+      key={guest?.qrToken ?? phone}
+      qrToken={
+        guest?.rsvpStatus === 'confirmed'
+          ? guest.qrToken
+          : null
+      }
+      guestName={guest?.fullName}
+      disabled={loading}
+      value={workshopRsvp}
+      onChange={answer => {
+        setWorkshopRsvp(answer)
+        setWorkshopError('')
+      }}
+    />
+  </div>
+)}
         </div>
       </section>
 

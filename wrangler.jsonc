@@ -12,11 +12,14 @@
       "/api/*"
     ]
   },
-  "observability": {
-    "logs": {
-      "enabled": true,
-      "invocation_logs": true
-    }
+ "observability": {
+  "enabled": true,
+  "head_sampling_rate": 1,
+  "logs": {
+    "enabled": true,
+    "invocation_logs": true
+  }
+
   },
   "d1_databases": [
     {
@@ -28,7 +31,9 @@
   "vars": {
     "ADMIN_USERNAME": "admin",
     "EMAIL_FROM": "Limitless Naturals <invitation@mail.tungsten-media.online>",
-    "PUBLIC_APP_URL": "https://limitless-libya-event.rolandremon300.workers.dev"
+    "PUBLIC_APP_URL": "https://limitless-libya-event.rolandremon300.workers.dev",
+    "ALLOW_REMOTE_ATTENDANCE_TEST": "true",
+"ATTENDANCE_TEST_NOW": "2026-11-14T16:00:00+02:00"
   },
   "durable_objects": {
     "bindings": [
