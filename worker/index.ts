@@ -10,7 +10,7 @@ import {
 } from './tables'
 
 
-const REGISTRATION_OPEN = true
+const REGISTRATION_OPEN = false
 
 
 interface Env {
