@@ -1,0 +1,58 @@
+.workshop-required-dialog {
+  width: min(560px, calc(100% - 28px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid #627388;
+  border-radius: 24px;
+  background: #192039;
+  color: #f4f7fa;
+  box-shadow: 0 24px 90px #0009;
+  overflow: auto;
+  overscroll-behavior: contain;
+  color-scheme: dark;
+}
+.workshop-required-dialog::backdrop {
+  background: #070a16d9;
+  backdrop-filter: blur(6px);
+}
+.workshop-required-dialog .workshop-choice {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 26px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: #192039;
+  color: #f4f7fa;
+}
+.workshop-required-dialog .workshop-choice p { color: #d6dfeb; line-height: 1.8; }
+.workshop-required-dialog .workshop-choice .workshop-choice__title { color: #fff; line-height: 1.6; font-size: 23px; }
+.workshop-required-dialog .workshop-choice .workshop-choice__eyebrow,
+.workshop-required-dialog .workshop-choice .workshop-choice__time { color: #bce6dc; }
+.workshop-required-dialog .workshop-choice .workshop-choice__tag { color: #d5f3ea; background: #bce6dc12; border-color: #bce6dc50; }
+.workshop-required-dialog .workshop-choice .workshop-choice__question { color: #fff; font-weight: 700; }
+.workshop-required-dialog .workshop-choice__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.workshop-required-dialog .workshop-choice__button {
+  min-height: 48px;
+  flex: 1 1 150px;
+  padding: 12px 18px;
+  border: 1px solid #bce6dc;
+  border-radius: 14px;
+  background: #bce6dc;
+  color: #101225;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.workshop-required-dialog .workshop-choice__button--no { background: transparent; color: #f4f7fa; border-color: #7c8c9f; }
+.workshop-required-dialog .workshop-choice__button:focus-visible { outline: 3px solid #f4d68b; outline-offset: 3px; }
+.workshop-required-dialog .workshop-choice__button:disabled { opacity: .65; cursor: wait; }
+.workshop-required-dialog .workshop-choice .workshop-choice__error { color: #ffb9c5; }
+.workshop-required-placeholder { padding: 36px 20px; border: 1px dashed #708398; border-radius: 20px; background: #192039; color: #d5f3ea; text-align: center; font: 14px/1.8 Tahoma, Arial, sans-serif; }
+@media (max-width: 600px) {
+  .workshop-required-dialog .workshop-choice { padding: 22px 18px; }
+  .workshop-required-dialog .workshop-choice .workshop-choice__title { font-size: 20px; }
+}

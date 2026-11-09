@@ -1,0 +1,18 @@
+.lp-dialog .ej-chromax-cut .ej-masthead { min-height: 260px; }
+.lp-dialog .ej-chromax-cut .ej-features { max-width: 100%; margin-top: 36px; }
+.lp-dialog .ej-chromax-cut .ej-main { min-height: 1200px; }
+.lp-dialog .ej-chromax-cut .ej-form { max-width: 46%; }
+.lp-dialog .ej-glow-hair .ej-main { min-height: 1300px; }
+.lp-dialog .ej-glow-hair .ej-masthead { min-height: 290px; }
+.lp-dialog .ej-glow-hair .ej-features { max-width: 52%; margin-top: 40px; }
+.lp-dialog .ej-glow-hair .ej-features p { font-size: 15px; line-height: 1.5; }
+.lp-dialog .ej-glow-hair .ej-badge { background: #c6007d; }
+.lp-dialog .ej-glow-hair .ej-tables--split :is(th, td) { padding: 6px; }
+@media (max-width: 600px) {
+  .lp-dialog .ej-chromax-cut .ej-main { min-height: 1350px; }
+  .lp-dialog .ej-chromax-cut .ej-masthead { min-height: 230px; }
+  .lp-dialog .ej-chromax-cut .ej-features { padding: 10px; background: #ffffffe6; border-radius: 8px; }
+  .lp-dialog .ej-glow-hair .ej-main { min-height: 2200px; }
+  .lp-dialog .ej-glow-hair .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-glow-hair .ej-features p { font-size: 13px; }
+}

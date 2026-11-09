@@ -2,6 +2,11 @@ import { useEffect, useRef, useState } from 'react'
 import { ArrowUpRight, ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react'
 import { products, type Product } from './products'
 import './products.css'
+import JourneyBrochures from './JourneyBrochures'
+import { mensProducts } from './mens-products'
+import { orthopedicProducts } from './orthopedic-products'
+import { wellnessProducts } from './wellness-products'
+import { beautyProducts } from './beauty-products'
 import { AnimatePresence, motion, useIsPresent } from 'framer-motion'
 
 
@@ -36,10 +41,10 @@ function ProductDetails({ product, onClose }: { product: Product; onClose: () =>
     onClick={event => { if (event.target === event.currentTarget) onClose() }}>
     <div className="lp-dialog-inner">
       <header className="lp-dialog-header">
-        <div><p className="lp-kicker">Limitless Beauty</p><h2 id="lp-detail-title">{product.name}</h2></div>
+        <div><p className="lp-kicker">Our Products</p><h2 id="lp-detail-title">{product.name}</h2></div>
         <button type="button" autoFocus className="lp-icon" onClick={onClose} aria-label="Close product details"><X size={20} /></button>
       </header>
- <div className="lp-detail-body">
+ {product.id === 'enhance-her-journey' ? <JourneyBrochures /> : product.id === 'mens-health' ? <JourneyBrochures products={mensProducts} collectionName="Limitless Men’s Health" /> : product.id === 'orthopedic-health' ? <JourneyBrochures products={orthopedicProducts} collectionName="Limitless Orthopedic Health" /> : product.id === 'wellness' ? <JourneyBrochures products={wellnessProducts} collectionName="Limitless Wellness" /> : product.id === 'beauty' ? <JourneyBrochures products={beautyProducts} collectionName="Limitless Beauty" /> : <div className="lp-detail-body">
   {product.items && (
     <ul
       style={{
@@ -135,7 +140,7 @@ function ProductDetails({ product, onClose }: { product: Product; onClose: () =>
       )}
     </section>
   ))}
-</div>
+</div>}
     </div>
   </dialog>
 }

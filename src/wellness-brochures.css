@@ -1,0 +1,24 @@
+.lp-dialog .ej-man-max .ej-main { min-height: 1320px; }
+.lp-dialog .ej-woman-max .ej-main { min-height: 1300px; }
+.lp-dialog .ej-woman-multigummies .ej-main { min-height: 1200px; }
+.lp-dialog .ej-man-max .ej-masthead { min-height: 240px; }
+.lp-dialog .ej-woman-max .ej-masthead,
+.lp-dialog .ej-woman-multigummies .ej-masthead { min-height: 280px; }
+.lp-dialog .ej-man-max .ej-tables--split :is(th, td),
+.lp-dialog .ej-woman-max .ej-tables--split :is(th, td),
+.lp-dialog .ej-woman-multigummies .ej-tables--split :is(th, td) { padding: 6px; }
+.lp-dialog .ej-man-max .ej-features,
+.lp-dialog .ej-woman-max .ej-features,
+.lp-dialog .ej-woman-multigummies .ej-features { max-width: 52%; margin-top: 38px; }
+.lp-dialog .ej-omega-3 .ej-masthead { min-height: 300px; }
+.lp-dialog .ej-omega-3 .ej-features { max-width: 52%; }
+@media (max-width: 600px) {
+  .lp-dialog .ej-man-max .ej-main,
+  .lp-dialog .ej-woman-max .ej-main { min-height: 2100px; }
+  .lp-dialog .ej-woman-multigummies .ej-main { min-height: 1900px; }
+  .lp-dialog .ej-man-max .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-woman-max .ej-masthead,
+  .lp-dialog .ej-woman-multigummies .ej-masthead,
+  .lp-dialog .ej-omega-3 .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-omega-3 .ej-features { max-width: 58%; }
+}

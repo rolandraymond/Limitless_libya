@@ -1,0 +1,76 @@
+.lp-dialog .ej-browser { min-width: 0; }
+.lp-dialog .ej-tabs { display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 0 18px; }
+.lp-dialog .ej-tabs button { padding: 9px 12px; border: 1px solid #536070; border-radius: 24px; background: transparent; color: #d4ddeb; font: inherit; font-size: 11px; cursor: pointer; }
+.lp-dialog .ej-tabs button[aria-pressed="true"] { background: #d5f3ea; color: #101225; border-color: #d5f3ea; }
+.lp-dialog .ej-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.lp-dialog .ej-controls > span { text-align: center; font-size: 12px; color: #c7d2df; }
+.lp-dialog .ej-brochure { display: grid; grid-template-columns: minmax(0, 1fr) 48px; background: white; color: #4b454b; border-radius: 4px; overflow: hidden; font-family: Arial, Helvetica, sans-serif; }
+.lp-dialog .ej-main { min-width: 0; min-height: 1080px; padding: 38px 28px; background-image: var(--ej-background); background-position: center; background-size: 100% 100%; background-repeat: no-repeat; }
+.lp-dialog .ej-masthead { min-height: 250px; }
+.lp-dialog .ej-masthead h3 { max-width: 90%; margin: 0; font-size: clamp(27px, 4vw, 40px); line-height: 1; letter-spacing: -1px; font-weight: 900; font-style: italic; color: var(--ej-accent); }
+.lp-dialog .ej-badge { display: inline-block; background: var(--ej-accent); color: white; border-radius: 50%; padding: 11px 24px; margin: 18px 0 0 10px; font-size: 22px; font-weight: bold; }
+.lp-dialog .ej-subtitle { margin: 0 0 12px; color: var(--ej-accent); font-size: 24px; font-style: italic; font-weight: 900; line-height: 1.15; }
+.lp-dialog .ej-tables { display: grid; border-radius: 10px; overflow: hidden; }
+.lp-dialog .ej-tables--split { grid-template-columns: 1fr 1fr; align-items: start; }
+.lp-dialog .ej-tables table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; color: white; font-size: 12px; line-height: 1.35; }
+.lp-dialog .ej-tables :is(th, td) { padding: 8px 10px; border: 0; vertical-align: top; overflow-wrap: anywhere; }
+.lp-dialog .ej-tables thead th { color: white; background: var(--ej-accent); font-size: 10px; font-weight: bold; }
+.lp-dialog .ej-tables thead th:first-child { width: 65%; }
+.lp-dialog .ej-tables tbody th { color: white; font-weight: 500; }
+.lp-dialog .ej-tables tbody td { color: white; text-align: right; }
+.lp-dialog .ej-tables tbody tr:nth-child(odd) { background: color-mix(in srgb, var(--ej-accent) 85%, transparent); }
+.lp-dialog .ej-tables tbody tr:nth-child(even) { background: color-mix(in srgb, var(--ej-soft) 90%, transparent); }
+.lp-dialog .ej-tables--split table { font-size: 10px; }
+.lp-dialog .ej-tables--split :is(th, td) { padding: 6px; }
+.lp-dialog .ej-features { max-width: 52%; margin-top: 44px; }
+.lp-dialog .ej-features p { margin: 0; color: #4b454b; font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
+.lp-dialog .ej-form { display: inline-block; max-width: 55%; padding: 9px 13px; border-radius: 24px; background: var(--ej-accent); color: white; font-size: 12px; line-height: 1.45; margin-top: 32px; }
+.lp-dialog .ej-rail { display: flex; writing-mode: vertical-rl; align-items: center; justify-content: space-around; padding: 24px 0; background: linear-gradient(var(--ej-accent) 50%, var(--ej-soft) 50%); color: white; font-size: 20px; letter-spacing: 1px; }
+.lp-dialog .ej-conceive-q .ej-main { min-height: 1320px; }
+.lp-dialog .ej-methyl-folate .ej-masthead { min-height: 360px; }
+.lp-dialog .ej-methyl-folate .ej-features { margin-top: 60px; }
+.lp-dialog .ej-lipoferrex .ej-masthead { min-height: 300px; }
+.lp-dialog .ej-carnivita-women .ej-masthead { min-height: 310px; }
+.lp-dialog .ej-carnivita-women .ej-features { max-width: 100%; }
+.lp-dialog .ej-review { border: 1px solid #d7b467; border-radius: 12px; padding: 14px; margin-top: 18px; color: #f7dfa9; background: #302a24; font-size: 12px; line-height: 1.8; }
+.lp-dialog .ej-pending { padding: 50px 20px; text-align: center; border: 1px solid #536070; border-radius: 16px; }
+.lp-dialog .ej-pending h3 { margin-top: 18px; }
+@media (max-width: 600px) {
+  .lp-dialog .ej-brochure { grid-template-columns: minmax(0, 1fr) 32px; }
+  .lp-dialog .ej-main { padding: 26px 14px; min-height: 1100px; }
+  .lp-dialog .ej-masthead { min-height: 210px; }
+  .lp-dialog .ej-masthead h3 { font-size: 27px; }
+  .lp-dialog .ej-badge { font-size: 18px; padding: 9px 20px; }
+  .lp-dialog .ej-subtitle { font-size: 21px; }
+  .lp-dialog .ej-tables--split { grid-template-columns: 1fr; }
+  .lp-dialog .ej-tables table, .lp-dialog .ej-tables--split table { font-size: 11px; }
+  .lp-dialog .ej-tables :is(th, td) { padding: 7px; }
+  .lp-dialog .ej-features { max-width: 60%; }
+  .lp-dialog .ej-features p { font-size: 13px; line-height: 1.5; }
+  .lp-dialog .ej-rail { font-size: 17px; }
+  .lp-dialog .ej-form { max-width: 65%; font-size: 10px; }
+  .lp-dialog .ej-conceive-q .ej-main { min-height: 1600px; }
+  .lp-dialog .ej-methyl-folate .ej-masthead { min-height: 340px; }
+  .lp-dialog .ej-lipoferrex .ej-masthead { min-height: 250px; }
+  .lp-dialog .ej-lipoferrex .ej-main { min-height: 1260px; }
+  .lp-dialog .ej-carnivita-women .ej-main { min-height: 1500px; }
+  .lp-dialog .ej-carnivita-women .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-carnivita-women .ej-features { padding: 10px; background: #ffffffe6; border-radius: 8px; }
+}
+.lp-dialog .ej-omega-3 .ej-masthead {
+  min-height: 300px;
+}
+
+.lp-dialog .ej-omega-3 .ej-features {
+  max-width: 52%;
+}
+
+@media (max-width: 600px) {
+  .lp-dialog .ej-omega-3 .ej-masthead {
+    min-height: 240px;
+  }
+
+  .lp-dialog .ej-omega-3 .ej-features {
+    max-width: 58%;
+  }
+}

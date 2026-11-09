@@ -1,6 +1,6 @@
 import GuestEntryCard from './GuestEntryCard'
 import { rememberProductPass } from './ProductsSection'
-import WorkshopChoice from './WorkshopChoice'
+import WorkshopQrGate from './WorkshopQrGate'
 import { useEffect, useState } from 'react'
 import {
   CalendarDays,
@@ -192,10 +192,11 @@ export default function PassPage() {
               </strong>
             </div>
 
-            <WorkshopChoice guestName={guest.fullName} qrToken={token} value={guest.workshopRsvp ?? null}
-              onChange={answer => setGuest(current => current ? { ...current, workshopRsvp: answer } : current)} />
-
-            <GuestEntryCard key={token} token={token} initialState={guest} />
+            <WorkshopQrGate key={token} qrToken={token}
+              guestName={guest.fullName} value={guest.workshopRsvp ?? null}
+              onChange={answer => setGuest(current => current ? { ...current, workshopRsvp: answer } : current)}>
+              <GuestEntryCard key={token} token={token} initialState={guest} />
+            </WorkshopQrGate>
             <a href="/#our-products" onClick={rememberProductPass} className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full border border-[#bce6dc]/40 px-6 text-sm font-semibold text-[#bce6dc] hover:bg-[#bce6dc]/10">Explore Our Products</a>
             <p className="mt-3 text-xs leading-6 text-[#aab8c7]">Keep your invitation link private.</p>
           </div>

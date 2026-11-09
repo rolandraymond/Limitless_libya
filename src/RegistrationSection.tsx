@@ -1,5 +1,6 @@
 import GuestEntryCard from './GuestEntryCard'
 import WorkshopChoice from './WorkshopChoice'
+import WorkshopQrGate from './WorkshopQrGate'
 import type { FormEvent } from 'react'
 import { useRef, useState } from 'react'
 import { CalendarDays, Check, MapPin,ArrowUpRight } from 'lucide-react'
@@ -375,6 +376,7 @@ const confirmAttendance = async (
 
     if (!response.ok) {
       if (data.code === 'ALREADY_CONFIRMED') {
+        setWorkshopRsvp(data.guest.workshopRsvp ?? null)
       setGuest({
         ...guest,
         fullName: data.guest.fullName,
@@ -1042,7 +1044,13 @@ return (
                     </div>
                   )}
                   
-                  {guest.qrToken && <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={guest} />}
+                  {guest.qrToken && (
+                    <WorkshopQrGate key={guest.qrToken} qrToken={guest.qrToken}
+                      guestName={guest.fullName} value={workshopRsvp}
+                      onChange={answer => { setWorkshopRsvp(answer); setWorkshopError('') }}>
+                      <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={guest} />
+                    </WorkshopQrGate>
+                  )}
                   <button
                     type="button"
                     onClick={resetInvitation}
@@ -1199,14 +1207,20 @@ return (
                   </div>
                 )}
 
-                {guest?.qrToken && <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={{ checkedIn: false }} />}
+                {guest?.qrToken && (
+                  <WorkshopQrGate key={guest.qrToken} qrToken={guest.qrToken}
+                    guestName={guest.fullName} value={workshopRsvp}
+                    onChange={answer => { setWorkshopRsvp(answer); setWorkshopError('') }}>
+                    <GuestEntryCard key={guest.qrToken} token={guest.qrToken} initialState={{ checkedIn: false }} />
+                  </WorkshopQrGate>
+                )}
 
               </div>
 
             )}
 
           </div>
-       {(isNewGuest || guest) && (
+       {(isNewGuest || (guest && guest.rsvpStatus !== 'confirmed')) && (
   <div
     ref={workshopRef}
     style={{

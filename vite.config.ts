@@ -10,7 +10,7 @@ export default defineConfig({
 
   server: {
       allowedHosts: [
-    'adaptor-phentermine-divine-ingredients.trycloudflare.com',
+    'grew-chancellor-tea-appear.trycloudflare.com',
   ],
     proxy: {
       '/api': {

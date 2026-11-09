@@ -1,0 +1,16 @@
+.lp-dialog .ej-carnivita-men .ej-masthead { min-height: 280px; }
+.lp-dialog .ej-carnivita-men .ej-features { max-width: 100%; }
+.lp-dialog .ej-carnivita-men .ej-form { margin-top: 34px; }
+.lp-dialog .ej-powermax .ej-masthead { min-height: 310px; }
+.lp-dialog .ej-powermax .ej-features { max-width: 52%; }
+.lp-dialog .ej-prostanorm-max .ej-masthead { min-height: 250px; }
+.lp-dialog .ej-prostanorm-max .ej-features { max-width: 52%; }
+@media (max-width: 600px) {
+  .lp-dialog .ej-carnivita-men .ej-main { min-height: 1500px; }
+  .lp-dialog .ej-carnivita-men .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-carnivita-men .ej-features { padding: 10px; background: #ffffffe6; border-radius: 8px; }
+  .lp-dialog .ej-powermax .ej-masthead { min-height: 270px; }
+  .lp-dialog .ej-powermax .ej-main { min-height: 1150px; }
+  .lp-dialog .ej-prostanorm-max .ej-main { min-height: 1250px; }
+  .lp-dialog .ej-prostanorm-max .ej-masthead { min-height: 230px; }
+}

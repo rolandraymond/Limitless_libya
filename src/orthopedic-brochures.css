@@ -1,0 +1,23 @@
+.lp-dialog .ej-allzyme .ej-masthead { min-height: 300px; }
+.lp-dialog .ej-allzyme .ej-tables thead th:first-child { width: 48%; }
+.lp-dialog .ej-b-complex-odf .ej-masthead { min-height: 300px; }
+.lp-dialog .ej-b-complex-odf .ej-features { max-width: 52%; }
+.lp-dialog .ej-osteodense .ej-features { max-width: 100%; margin-top: 30px; }
+.lp-dialog .ej-ossofortin-5000 .ej-masthead { min-height: 270px; }
+.lp-dialog .ej-ossofortin-5000 .ej-features { max-width: 100%; }
+.lp-dialog .ej-ossofortin-5000 .ej-form { max-width: 100%; }
+.lp-dialog .ej-magnesium .ej-masthead { min-height: 320px; }
+.lp-dialog .ej-magnesium .ej-features { max-width: 52%; }
+.lp-dialog .ej-magnesium .ej-main { min-height: 1200px; }
+@media (max-width: 600px) {
+  .lp-dialog .ej-allzyme .ej-main { min-height: 1250px; }
+  .lp-dialog .ej-allzyme .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-b-complex-odf .ej-main { min-height: 1250px; }
+  .lp-dialog .ej-b-complex-odf .ej-masthead { min-height: 240px; }
+  .lp-dialog .ej-osteodense .ej-main { min-height: 1350px; }
+  .lp-dialog .ej-osteodense .ej-features { padding: 10px; background: #ffffffe6; border-radius: 8px; }
+  .lp-dialog .ej-ossofortin-5000 .ej-masthead { min-height: 250px; }
+  .lp-dialog .ej-ossofortin-5000 .ej-features { padding: 10px; background: #ffffffe6; border-radius: 8px; }
+  .lp-dialog .ej-magnesium .ej-main { min-height: 1500px; }
+  .lp-dialog .ej-magnesium .ej-masthead { min-height: 290px; }
+}
