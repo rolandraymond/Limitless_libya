@@ -336,3 +336,29 @@
     font-size: 12px;
   }
 }
+
+
+.lp-section .lp-frame {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.lp-frame .lp-viewport {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.lp-viewport > .lp-size-guide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-area: 1 / 1;
+  min-width: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lp-frame .lp-art img {
+  aspect-ratio: 1920 / 930;
+  object-fit: contain;
+}

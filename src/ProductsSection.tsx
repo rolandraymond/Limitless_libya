@@ -182,8 +182,8 @@ function ProductSlide({ product, index, reducedMotion, onDetails }: {
   <img
     src={product.image}
     alt={product.name}
-    width="1536"
-    height="1024"
+  width="1920"
+  height="930"
     loading="lazy"
     style={{ objectFit: 'contain' }}
   />
@@ -291,6 +291,19 @@ export default function ProductsSection() {
       onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}>
       <div className="lp-frame-top"><span><strong>{String(index + 1).padStart(2, '0')}</strong> / {String(products.length).padStart(2, '0')}</span></div>
  <div className="lp-viewport" aria-live={playing ? 'off' : 'polite'}>
+
+  <div className="lp-size-guide" aria-hidden="true" inert>
+  {products.map((item, i) => (
+    <ProductSlide
+      key={`size-${item.id}`}
+      product={item}
+      index={i}
+      reducedMotion={true}
+      onDetails={() => {}}
+    />
+  ))}
+</div>
+
   <AnimatePresence initial={false} mode="sync">
     <ProductSlide
       key={product.id}
@@ -301,7 +314,7 @@ export default function ProductsSection() {
     />
   </AnimatePresence>
 </div>
-      <div className="lp-frame-bottom"><span className="lp-demo">Demo artwork · final product visuals to follow</span>
+      <div className="lp-frame-bottom">
         <div className="lp-controls">
           <button type="button" className="lp-icon" aria-label="Previous product" onClick={() => advance(-1)}><ChevronLeft size={21} /></button>
           <div className="lp-dots">{products.map((item, i) => <button type="button" key={item.id} aria-label={`Show ${item.name}`} aria-current={i === index ? 'true' : undefined} onClick={() => setIndex(i)} />)}</div>
