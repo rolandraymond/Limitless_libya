@@ -10,7 +10,7 @@ export default defineConfig({
 
   server: {
       allowedHosts: [
-    'grew-chancellor-tea-appear.trycloudflare.com',
+    'partition-limiting-gives-nutritional.trycloudflare.com',
   ],
     proxy: {
       '/api': {
