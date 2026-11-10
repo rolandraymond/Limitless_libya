@@ -44,7 +44,7 @@ function ProductDetails({ product, onClose }: { product: Product; onClose: () =>
         <div><p className="lp-kicker">Our Products</p><h2 id="lp-detail-title">{product.name}</h2></div>
         <button type="button" autoFocus className="lp-icon" onClick={onClose} aria-label="Close product details"><X size={20} /></button>
       </header>
- {product.id === 'enhance-her-journey' ? <JourneyBrochures /> : product.id === 'mens-health' ? <JourneyBrochures products={mensProducts} collectionName="Limitless Men’s Health" /> : product.id === 'orthopedic-health' ? <JourneyBrochures products={orthopedicProducts} collectionName="Limitless Orthopedic Health" /> : product.id === 'wellness' ? <JourneyBrochures products={wellnessProducts} collectionName="Limitless Wellness" /> : product.id === 'beauty' ? <JourneyBrochures products={beautyProducts} collectionName="Limitless Beauty" /> : <div className="lp-detail-body">
+ {product.id === 'enhance-her-journey' ? <JourneyBrochures /> : product.id === 'mens-health' ? <JourneyBrochures products={mensProducts} collectionName="Limitless Men’s Health" /> : product.id === 'orthopedic-health' ? <JourneyBrochures products={orthopedicProducts} collectionName="Limitless Orthopedic Health" /> : product.id === 'wellness' ? <JourneyBrochures products={wellnessProducts} collectionName="Limitless Wellness" /> : product.id === 'beauty' ? <JourneyBrochures products={beautyProducts} collectionName="Limitless" /> : <div className="lp-detail-body">
   {product.items && (
     <ul
       style={{
@@ -286,10 +286,10 @@ export default function ProductsSection() {
     <div className="lp-section-heading"><div><p className="lp-kicker">Discover the range</p><h2 id="lp-heading">Our Products</h2></div>
       {returnPass && <a className="lp-return" href={returnPass}>Back to my invitation <ArrowUpRight size={16} /></a>}
     </div>
-    <div className="lp-frame" role="region" aria-roledescription="carousel" aria-label="Limitless Beauty products"
+    <div className="lp-frame" role="region" aria-roledescription="carousel" aria-label="Limitless products"
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
       onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false) }}>
-      <div className="lp-frame-top"><span>Limitless Beauty</span><span><strong>{String(index + 1).padStart(2, '0')}</strong> / {String(products.length).padStart(2, '0')}</span></div>
+      <div className="lp-frame-top"><span><strong>{String(index + 1).padStart(2, '0')}</strong> / {String(products.length).padStart(2, '0')}</span></div>
  <div className="lp-viewport" aria-live={playing ? 'off' : 'polite'}>
   <AnimatePresence initial={false} mode="sync">
     <ProductSlide
