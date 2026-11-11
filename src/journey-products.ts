@@ -1,6 +1,7 @@
 export type JourneyProduct = {
   id: string; name: string; badge?: string; color?: string; soft?: string;
   image?: string; form?: string; rows?: [string, string][];
+  productImage?: string;
   features?: string; pending?: boolean; review?: string;
 }
 
@@ -11,7 +12,8 @@ export const journeyProducts: JourneyProduct[] = [
     "badge": "Original",
     "color": "#60499d",
     "soft": "#a594c2",
-    "image": "/assets/products/journey/conceive-q.jpg",
+"image": "/assets/products/journey/conceive-q-background.png",
+"productImage": "/assets/products/journey/conceive-q-pack.png",
     "form": "Chewable Tablets / Powder Stick Pack",
     "rows": [
       [
@@ -123,21 +125,21 @@ export const journeyProducts: JourneyProduct[] = [
     "features": "Active folate to restore folate levels, especially recommended during pregnancy and for individuals with MTHFR mutation or a history of recurrent miscarriage."
   },
 {
-  id: 'omega-3',
-  name: 'Limitless Omega-3',
-  badge: '2000 mg',
-  color: '#ad551e',
-  soft: '#f7c438',
-  image: '/assets/products/journey/omega-3.jpg',
-  form: 'Soft Gel Capsules',
-  rows: [
+  "id": "omega-3",
+  "name": "Limitless Omega-3",
+  "badge": "2000 mg",
+  "color": "#ad551e",
+  "soft": "#f7c438",
+  "image": "/assets/products/journey/omega-3.jpg",
+  "form": 'Soft Gel Capsules',
+  "rows": [
     ['Vitamin D3', '400 IU'],
     ['Fish Oil', '2000 mg'],
     ['Total Omega-3 Acids', '1400 mg'],
     ['Eicosapentaenoic Acid (EPA)', '300 mg'],
     ['Docosahexaenoic Acid (DHA)', '1000 mg'],
   ],
-  features:
+  "features":
     'Delivers high-potency DHA with synergistic Vitamin D3 for optimal brain, heart, and immune support. 100% mercury-free and clinically backed for purity, safety and performance.',
 },
   {

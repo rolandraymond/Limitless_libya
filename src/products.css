@@ -162,7 +162,7 @@
   justify-content: center;
   align-items: flex-start;
   height: auto;
-  padding-bottom: 120px; /* مساحة للانعكاس قبل الكلام */
+  padding-bottom: 120px; 
   overflow: visible;
 }
 
@@ -361,4 +361,13 @@
 .lp-frame .lp-art img {
   aspect-ratio: 1920 / 930;
   object-fit: contain;
+}
+
+
+@media (min-width: 601px) {
+  .lp-dialog .ej-brochure[class] .ej-main {
+    background-size: min(100%, 523px) auto;
+    background-position: center bottom;
+    background-repeat: no-repeat;
+  }
 }

@@ -62,6 +62,14 @@ export default function JourneyBrochures({
           <p>{product.features}</p>
         </section>
         <span className="ej-form">{product.form}</span>
+        {product.productImage && (
+  <img
+    className="ej-product-pack"
+    src={product.productImage}
+    alt={product.name}
+    loading="lazy"
+  />
+)}
       </div>
       <aside className="ej-rail" aria-label="Product collection"><strong>{collectionName.toUpperCase()}</strong><span>{product.badge}</span></aside>
     </article>}
