@@ -10,7 +10,7 @@ export default defineConfig({
 
   server: {
       allowedHosts: [
-    'partition-limiting-gives-nutritional.trycloudflare.com',
+    'gave-folders-bali-helps.trycloudflare.com',
   ],
     proxy: {
       '/api': {

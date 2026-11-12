@@ -1,7 +1,7 @@
 // All boundaries are explicit Tripoli local times for the event day.
 export const ATTENDANCE_SCHEDULE = {
   timezone: 'Africa/Tripoli',
-  workshopOpensAt: '2026-11-14T14:00:00+02:00',
+  workshopOpensAt: '2026-11-14T00:00:00+02:00',
   workshopClosesAt: '2026-11-14T15:55:00+02:00',
   eventOpensAt: '2026-11-14T16:00:00+02:00',
 } as const
@@ -116,7 +116,7 @@ export async function checkInGuest(
     return json({
       success: false,
       code: now < Date.parse(availability.workshopOpensAt) ? 'WORKSHOP_NOT_OPEN' : 'WORKSHOP_CLOSED',
-      error: 'Workshop check-in is available from 2:00 PM until 3:55 PM Tripoli time.',
+      error: 'Workshop check-in is available on 14 November until 3:55 PM Tripoli time.',
       availability,
     }, 409)
   }
